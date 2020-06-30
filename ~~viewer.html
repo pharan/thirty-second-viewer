@@ -222,6 +222,7 @@
 	const LEFTARROW_ID = "leftarrow";
 	const RIGHTARROW_ID = "rightarrow";
 	const IMAGEHOLDER_ID = "imageholder";
+	const TIMER_UPDATE_INTERVAL_SECONDS = 0.25;
 
 	const LEFTARROW_UNICODE = "&lsaquo;";
 	const RIGHTARROW_UNICODE = "&rsaquo;";
@@ -259,8 +260,9 @@
 
 	// *		*		*		*		*		 VIEWER INTERFACE OBJECT		*		*		*		*		* 
 	var viewerInterface = {
-		getCustomNumberElement: () => { return document.getElementById(USER_CLICKABLE_NUMBER_ID); },
-		getUserSecondsString: () => { return this.getCustomNumberElement().value; },
+		getCustomNumberElement: function() { return document.getElementById(USER_CLICKABLE_NUMBER_ID); },
+		getUserSecondsFieldValue: function() { return this.getCustomNumberElement().value; },
+		getValidUserSeconds: function() { return parseInt(this.getUserSecondsFieldValue(), 10) },
 
 		initialize: function() {
 			this.localizeText();
@@ -268,13 +270,13 @@
 		},
 
 		initializeButtons: function() {
-			//bind click events
+			// Bind click events
 			// These need to be anonymous functions so they don't break the subsequent invisible -this- parameter during function dereferencing
 			document.getElementById(RIGHTARROW_ID).addEventListener('click', () => { circulator.forceNext(); } );
 			document.getElementById(LEFTARROW_ID).addEventListener('click', () => { circulator.forcePrevious(); } );
 			document.getElementById(IMAGEHOLDER_ID).addEventListener('click', () => { imageHolder.toggleImageZoom(); } );
 			
-			//bind event for when user changes files
+			// Bind event for when user changes files
 			var fileInputElement = document.getElementById("fileinput");
 			fileInputElement.setAttribute("accept", "image/*");
 			fileInputElement.addEventListener("change", () => {
@@ -284,7 +286,7 @@
 			
 			var numberElement = this.getCustomNumberElement();
 
-			//bind custom-time textbox event
+			// Bind custom-time textbox events
 			numberElement.addEventListener("click", () => {
 				numberElement.focus();
 				numberElement.select();
@@ -297,7 +299,7 @@
 				//TODO do active checking while textbox is being edited (add change listener)
 				//TODO apply changes and reset timer when user presses enter in textbox
 
-				var interfaceCustomNumberElement = this.getCustomNumberElement();
+				var interfaceCustomNumberElement = viewerInterface.getCustomNumberElement();
 
 				// when you press enter
 				if (event.keyCode === KEY_ENTER) {	
@@ -305,16 +307,15 @@
 					interfaceCustomNumberElement.blur();		// lose focus on textbox
 					
 					// TODO: Move this to a separate validate() method.
-					//check if valToCheck is a valid value
 					if (isNaN(valToCheck)) {
 						interfaceCustomNumberElement.value = DEFAULT_SECONDS;	// if it's an invalid value, reset to default (30)
 					} else if (valToCheck < circulator.MINIMUM_SECONDS) {
 						interfaceCustomNumberElement.value = circulator.MINIMUM_SECONDS;
 					}
 
-					////at this point, the number in USER_CLICKABLE_NUMBER should be valid.
-					var validnumber = this.getUserSecondsString();			// change text of site to reflect user change:
-					this.changeAllMentionOfSeconds(validnumber);
+					// At this point, the number in USER_CLICKABLE_NUMBER should be valid.
+					var validnumber = viewerInterface.getUserSecondsFieldValue();			// change text of site to reflect user change:
+					viewerInterface.changeAllMentionOfSeconds(validnumber);
 					
 					if( listData.isPopulated() ) {					// only trigger new duration if the list is populated
 						circulator.newDuration();
@@ -323,7 +324,7 @@
 				}
 			});
 			
-			//bind left and right keys
+			// Bind keyboard input
 			document.addEventListener("keydown", (event) => {
 				if (event.keyCode === KEY_LEFT)			{ circulator.forcePrevious();	}
 				if (event.keyCode === KEY_RIGHT)		{ circulator.forceNext(); 		}
@@ -373,7 +374,7 @@
 		},
 
 		updateTimeIndicator: function() {
-			imageHolder.showTimeLeft(viewerInterface.toDotRepresentation(circulator.secondsLeft, circulator.lastsecondsBetween));
+			document.getElementById(TIMELEFT_ID).innerHTML = this.toDotRepresentation(circulator.secondsLeft, circulator.lastsecondsBetween);
 		},
 
 		toDotRepresentation: (timeinSeconds, maxtime) => {
@@ -398,7 +399,6 @@
 		secondsBetween: 30,
 		MINIMUM_SECONDS: 5,
 		counter: 0,
-
 		
 		
 		togglePlayPause: function() {
@@ -411,8 +411,8 @@
 		
 		updateTime: function() {
 			if (this.isActive) {
-				this.secondsLeft -= 0.5;
-				if(this.secondsLeft < 0) {
+				this.secondsLeft -= TIMER_UPDATE_INTERVAL_SECONDS;
+				if (this.secondsLeft < 0) {
 					this.restartTimer();
 					this.next();
 				}
@@ -425,7 +425,7 @@
 			
 			clearInterval(this.counter);				//stop the previous counter (if it exists?)
 			this.counter = setInterval(	() => {	circulator.updateTime(); },
-										500
+										TIMER_UPDATE_INTERVAL_SECONDS * 1000
 										);
 		},
 		restartTimer: function() {
@@ -434,14 +434,10 @@
 			this.secondsLeft = this.secondsBetween;
 		},
 		readTextBoxTime: function() {
-			//TODO Validate
-			var sec = parseInt(viewerInterface.getUserSecondsString(), 10);
-			this.secondsBetween	= sec;
+			this.secondsBetween	= viewerInterface.getValidUserSeconds();
 		},
 		reflectChange: function() {
-			var x = this.currentNumber;
-			var y = this.imageOrder[x];
-			currentImage = listData.fileNameArray[y];
+			currentImage = listData.fileNameArray[this.imageOrder[this.currentNumber]];
 			imageHolder.setImage(currentImage);
 		},
 		
@@ -506,9 +502,6 @@
 			imageElement.setAttribute("src", "" + filename);
 			var imagecaption = imageElement.getAttribute("src");
 			document.getElementById(THE_IMAGECAPTION_ID).innerHTML = imagecaption;
-		},
-		showTimeLeft: function(timeString) {
-			document.getElementById(TIMELEFT_ID).innerHTML = timeString;
 		},
 		toggleImageZoom: function() {
 			this.isImageZoomed = !this.isImageZoomed;
