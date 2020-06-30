@@ -259,18 +259,8 @@
 
 	// *		*		*		*		*		 VIEWER INTERFACE OBJECT		*		*		*		*		* 
 	var viewerInterface = {
-		customNumberElement: null,
-
-		getCustomNumberElement: () => {
-			if (this.customNumberElement == null) {
-				this.customNumberElement = document.getElementById(USER_CLICKABLE_NUMBER_ID);
-			}
-			return this.customNumberElement;
-		},
-
-		getUserSecondsString: () => {
-			return this.customNumberElement.value;
-		},
+		getCustomNumberElement: () => { return document.getElementById(USER_CLICKABLE_NUMBER_ID); },
+		getUserSecondsString: () => { return this.getCustomNumberElement().value; },
 
 		initialize: function() {
 			this.localizeText();
@@ -301,7 +291,7 @@
 			});
 
 			numberElement.addEventListener("keydown", function(event) {
-				var valToCheck =  parseInt(numberElement.value, 10);
+				var valToCheck = parseInt(numberElement.value, 10);
 				
 				//TODO set new time only if textbox is a valid number
 				//TODO do active checking while textbox is being edited (add change listener)
@@ -316,13 +306,11 @@
 					
 					// TODO: Move this to a separate validate() method.
 					//check if valToCheck is a valid value
-					if(	isNaN(valToCheck) ) {
+					if (isNaN(valToCheck)) {
 						interfaceCustomNumberElement.value = DEFAULT_SECONDS;	// if it's an invalid value, reset to default (30)
-					}
-					else if( valToCheck < circulator.MINIMUM_SECONDS ) {
+					} else if (valToCheck < circulator.MINIMUM_SECONDS) {
 						interfaceCustomNumberElement.value = circulator.MINIMUM_SECONDS;
 					}
-					
 
 					////at this point, the number in USER_CLICKABLE_NUMBER should be valid.
 					var validnumber = this.getUserSecondsString();			// change text of site to reflect user change:
@@ -442,12 +430,12 @@
 		},
 		restartTimer: function() {
 			this.readTextBoxTime();
-			this.lastsecondsBetween 	= this.secondsBetween;
-			this.secondsLeft 			= this.secondsBetween;
+			this.lastsecondsBetween = this.secondsBetween;
+			this.secondsLeft = this.secondsBetween;
 		},
 		readTextBoxTime: function() {
 			//TODO Validate
-			var sec = parseInt( viewerInterface.getUserSecondsString(), 10 );
+			var sec = parseInt(viewerInterface.getUserSecondsString(), 10);
 			this.secondsBetween	= sec;
 		},
 		reflectChange: function() {
@@ -501,7 +489,7 @@
 		},
 		shuffleImageOrder: function() {
 			var iterations = Math.floor(this.imageOrder.length * 2 / 3);
-			for(var xx = 0; xx < iterations; xx++) {
+			for (var xx = 0; xx < iterations; xx++) {
 				var swapBuffer = this.imageOrder[xx];
 				var swapPartner = Math.floor((Math.random() * this.imageOrder.length)); 
 				this.imageOrder[xx] = this.imageOrder[swapPartner];
@@ -548,7 +536,7 @@
 			for (var i = 0; i < theFileArray.length; i++) {
 				this.fileNameArray[i] = theFileArray[i].name;
 			}
-			
+
 			circulator.newOrder();
 			circulator.initTimer();
 			viewerInterface.refreshSubHeader();
