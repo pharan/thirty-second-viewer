@@ -262,7 +262,7 @@
 	var viewerInterface = {
 		getCustomNumberElement: function() { return document.getElementById(USER_CLICKABLE_NUMBER_ID); },
 		getUserSecondsFieldValue: function() { return this.getCustomNumberElement().value; },
-		getValidUserSeconds: function() { return parseInt(this.getUserSecondsFieldValue(), 10) },
+		getValidUserSeconds: function() { return parseInt(this.getUserSecondsFieldValue(), 10); },
 		getCurrentImage: function() { return listData.fileNameArray[circulator.getCurrentImageIndex()]; },
 
 		initialize: function() {
@@ -367,7 +367,7 @@
 		},
 
 		refreshSubHeader: function() {
-			document.getElementById(TGH_ID).innerHTML = "[ " + listData.toString() + " : <span class='" + MENTIONS_OF_SECONDS_CLASS  + "'>" +  circulator.lastsecondsBetween + "</span> seconds each ]";
+			document.getElementById(TGH_ID).innerHTML = "[ " + listData.getLength() + " images" + " : <span class='" + MENTIONS_OF_SECONDS_CLASS  + "'>" +  circulator.lastsecondsBetween + "</span> seconds each ]";
 			var welcomeClassList = document.getElementById(WELCOME_ID).classList;
 			welcomeClassList.remove("helpon");
 			welcomeClassList.add("helpoff");
@@ -377,10 +377,6 @@
 			this.getCustomNumberElement().value = numofseconds;
 			document.querySelector("title").innerHTML = numofseconds + REST_OF_TITLE;		
 			document.querySelectorAll(MENTIONS_OF_SECONDS_SELECTOR).forEach((el) => { el.innerHTML = numofseconds; });
-		},
-
-		showListData: function() {
-			document.getElementById(TGH_ID).innerHTML = listData.toString();
 		},
 
 		updateTimeIndicator: function() {
@@ -411,9 +407,11 @@
 		counter: 0,
 		onUpdate: null,
 		onImageChanged: null,
+		onPlayPauseChanged: null,
 		
 		togglePlayPause: function() {
 			this.isActive = !(this.isActive);
+			if (onPlayPauseChanged != null) onPlayPauseChanged();
 			// TODO: Make time left indicator clickable
 			// TODO: Make dots turn red when paused
 			// TODO: Make play pause symbol visible when you hover over the dots (or the arrows?)
@@ -509,8 +507,7 @@
 		setImage: function(filename) {
 			var imageElement = document.getElementById(THE_IMAGE_ID);
 			imageElement.setAttribute("src", "" + filename);
-			var imagecaption = imageElement.getAttribute("src");
-			document.getElementById(THE_IMAGECAPTION_ID).innerHTML = imagecaption;
+			document.getElementById(THE_IMAGECAPTION_ID).innerHTML = imageElement.getAttribute("src");
 		},
 		toggleImageZoom: function() {
 			this.isImageZoomed = !this.isImageZoomed;
@@ -530,6 +527,10 @@
 	var listData = {
 		theListFile: "",
 		fileNameArray: [],
+
+		getLength: () => listData.fileNameArray.length,
+		isPopulated: () => listData.getLength() > 1,
+
 		newFileArray: function() {
 			theFileArray = document.getElementById("fileinput").files;		// take the files array from the <input> tag
 
@@ -541,12 +542,6 @@
 
 			circulator.newOrder();
 			circulator.initTimer();
-		},
-		isPopulated: function() {
-			return (listData.fileNameArray.length > 1);
-		},
-		toString: function() {
-			return this.fileNameArray.length + " images"; 
 		}
 	};	
 	</script>
