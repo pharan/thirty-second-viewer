@@ -263,6 +263,7 @@
 		getCustomNumberElement: function() { return document.getElementById(USER_CLICKABLE_NUMBER_ID); },
 		getUserSecondsFieldValue: function() { return this.getCustomNumberElement().value; },
 		getValidUserSeconds: function() { return parseInt(this.getUserSecondsFieldValue(), 10) },
+		getCurrentImage: function() { return listData.fileNameArray[circulator.getCurrentImageIndex()]; },
 
 		initialize: function() {
 			this.localizeText();
@@ -270,6 +271,10 @@
 		},
 
 		initializeButtons: function() {
+			// Bind circulator update to interface update
+			circulator.onUpdate = () => { viewerInterface.updateTimeIndicator() };
+			circulator.onImageChanged = () => { imageHolder.setImage(viewerInterface.getCurrentImage()); };
+
 			// Bind click events
 			// These need to be anonymous functions so they don't break the subsequent invisible -this- parameter during function dereferencing
 			document.getElementById(RIGHTARROW_ID).addEventListener('click', () => { circulator.forceNext(); } );
@@ -281,7 +286,8 @@
 			fileInputElement.setAttribute("accept", "image/*");
 			fileInputElement.addEventListener("change", () => {
 				listData.newFileArray();
-				circulator.reflectChange();
+				viewerInterface.initializeImage();
+				viewerInterface.refreshSubHeader();
 			});			
 			
 			var numberElement = this.getCustomNumberElement();
@@ -357,7 +363,7 @@
 
 		initializeImage: function() {
 			imageHolder.toggleImageZoom();
-			circulator.reflectChange();
+			imageHolder.setImage(viewerInterface.getCurrentImage());
 		},
 
 		refreshSubHeader: function() {
@@ -373,6 +379,10 @@
 			document.querySelectorAll(MENTIONS_OF_SECONDS_SELECTOR).forEach((el) => { el.innerHTML = numofseconds; });
 		},
 
+		showListData: function() {
+			document.getElementById(TGH_ID).innerHTML = listData.toString();
+		},
+
 		updateTimeIndicator: function() {
 			document.getElementById(TIMELEFT_ID).innerHTML = this.toDotRepresentation(circulator.secondsLeft, circulator.lastsecondsBetween);
 		},
@@ -385,13 +395,13 @@
 				if( (rrr + 1) % 30 == 0 && rrr != 0) dotstring += "<br />";
 			}
 			return dotstring;
-		},
+		}
+
 	};
 		
 
 	// *		*		*		*		*		 CIRCULATOR OBJECT 			*		*		*		*		* 
 	var circulator = {
-		currentImage: "",
 		isActive: true,
 		currentNumber: 0,
 		secondsLeft: 30,
@@ -399,7 +409,8 @@
 		secondsBetween: 30,
 		MINIMUM_SECONDS: 5,
 		counter: 0,
-		
+		onUpdate: null,
+		onImageChanged: null,
 		
 		togglePlayPause: function() {
 			this.isActive = !(this.isActive);
@@ -416,7 +427,7 @@
 					this.restartTimer();
 					this.next();
 				}
-				viewerInterface.updateTimeIndicator();
+				if (this.onUpdate != null) this.onUpdate();
 			}
 		},
 
@@ -436,14 +447,10 @@
 		readTextBoxTime: function() {
 			this.secondsBetween	= viewerInterface.getValidUserSeconds();
 		},
-		reflectChange: function() {
-			currentImage = listData.fileNameArray[this.imageOrder[this.currentNumber]];
-			imageHolder.setImage(currentImage);
-		},
 		
 		newDuration: function() {
 			this.restartTimer();
-			viewerInterface.updateTimeIndicator();
+			if (this.onUpdate != null) this.onUpdate();
 		},
 		forceNext: function() {
 			if (listData.isPopulated()) {
@@ -460,22 +467,24 @@
 		next: function() {
 			if (this.currentNumber < listData.fileNameArray.length - 1) this.currentNumber++;
 			else this.currentNumber = 0;
-			this.reflectChange();
+			
+			if (this.onImageChanged != null) this.onImageChanged();			
 		},
 		prev: function() {
 			if (this.currentNumber > 0) this.currentNumber--;
 			else this.currentNumber = listData.fileNameArray.length - 1;
-			this.reflectChange();	
+			if (this.onImageChanged != null) this.onImageChanged();
 		},
 
 		// SHUFFLE	(uses an array of ints from 0 to the last index of the data array)
 		// Instead of shuffling the filename array, or just randomly picking from it.
 		// An persistent array of shuffled indexes is kept so the user can freely go back to a previous image.
 		imageOrder: [],
+		getCurrentImageIndex: () => { return circulator.imageOrder[circulator.currentNumber]; },
 		newOrder: function() {
 			this.resetImageOrder();
 			this.shuffleImageOrder();
-			viewerInterface.initializeImage();
+			if (this.onImageChanged != null) this.onImageChanged();
 		},
 		resetImageOrder: function() {
 			this.imageOrder = new Array(listData.fileNameArray.length);
@@ -532,10 +541,6 @@
 
 			circulator.newOrder();
 			circulator.initTimer();
-			viewerInterface.refreshSubHeader();
-		},
-		showList: function() {
-			document.getElementById(TGH_ID).innerHTML = this.toString();
 		},
 		isPopulated: function() {
 			return (listData.fileNameArray.length > 1);
