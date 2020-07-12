@@ -127,9 +127,10 @@
 			color: 				#f6f6f6;
 		}
 		#leftarrow:hover,
-		#rightarrow:hover
+		#rightarrow:hover,
+		#timeleft:hover
 		{
-			background-color: rgba(255,255,255,0.2);
+			background-color: rgba(255,255,255,0.3);
 		}
 		#leftarrow	{	left: 10px;		}
 		#rightarrow	{	right: 10px;		}
@@ -140,10 +141,11 @@
 			top: 				15px;
 			color: 				#bbb;
 			left: 				50%;
-			margin-left: 		-80px;
-			width: 				150px;
-			height: 			50px;
+			margin-left: 		-84px;
+			width: 				163px;
+			height: 			33px;
 			line-height:		0.3em;
+			padding-left:		4px;
 		}
 
 		#timeleft.paused {
@@ -214,7 +216,8 @@
 		}
 	</style>
 	
-	<script type="text/javascript">	
+	<script type="text/javascript">
+	const CLICK_EVENT = "click";
 	const THE_IMAGE_ID = "image";
 	const THE_IMAGECAPTION_ID = "imagecaption";
 	const WELCOME_ID = "welcome";
@@ -283,11 +286,10 @@
 
 			// Bind click events
 			// These need to be anonymous functions so they don't break the subsequent invisible -this- parameter during function dereferencing
-			document.getElementById(RIGHTARROW_ID).addEventListener('click', () => { circulator.forceNext(); });
-			document.getElementById(LEFTARROW_ID).addEventListener('click', () => { circulator.forcePrevious(); });
-			document.getElementById(IMAGEHOLDER_ID).addEventListener('click', () => { imageHolder.toggleImageZoom(); });
-			document.getElementById(TIMELEFT_ID).addEventListener('click', () => { viewerInterface.togglePlayPause(); });
-
+			document.getElementById(RIGHTARROW_ID).addEventListener(CLICK_EVENT, () => { circulator.forceNext(); });
+			document.getElementById(LEFTARROW_ID).addEventListener(CLICK_EVENT, () => { circulator.forcePrevious(); });
+			document.getElementById(IMAGEHOLDER_ID).addEventListener(CLICK_EVENT, () => { imageHolder.toggleImageZoom(); });
+			document.getElementById(TIMELEFT_ID).addEventListener(CLICK_EVENT, () => { viewerInterface.togglePlayPause(); });
 
 			// Bind event for when user changes files
 			var fileInputElement = document.getElementById("fileinput");
@@ -308,14 +310,8 @@
 
 			numberElement.addEventListener("keydown", function(event) {
 				var valToCheck = parseInt(numberElement.value, 10);
-				
-				//TODO set new time only if textbox is a valid number
-				//TODO do active checking while textbox is being edited (add change listener)
-				//TODO apply changes and reset timer when user presses enter in textbox
-
 				var interfaceCustomNumberElement = viewerInterface.getCustomNumberElement();
-
-				// when you press enter
+			
 				if (event.keyCode === KEY_ENTER) {	
 					event.preventDefault();
 					interfaceCustomNumberElement.blur();		// lose focus on textbox
@@ -354,8 +350,7 @@
 
 			this.changeAllMentionOfSeconds(secondsSetting);
 			document.getElementById(LEFTARROW_ID).innerHTML = LEFTARROW_UNICODE;
-			document.getElementById(RIGHTARROW_ID).innerHTML = RIGHTARROW_UNICODE;
-			//document.getElementById(PLAYPAUSE_ID).innerHTML = PLAYBUTTON_UNICODE;
+			document.getElementById(RIGHTARROW_ID).innerHTML = RIGHTARROW_UNICODE;		
 
 			document.querySelectorAll("header > h1").forEach((el) => { el.innerHTML = REST_OF_TITLE; });
 			document.querySelectorAll(".viewerfilename").forEach((el) => { el.innerHTML = VIEWER_FILENAME; });
@@ -434,8 +429,6 @@
 		togglePlayPause: function() {
 			this.isActive = !(this.isActive);
 			if (this.onPlayPauseChanged != null) this.onPlayPauseChanged();
-			// TODO: Make play pause symbol visible when you hover over the dots (or the arrows?)
-			// TODO: make play symbol always visible when paused.
 		},
 		
 		updateTime: function() {
