@@ -146,6 +146,10 @@
 			line-height:		0.3em;
 		}
 
+		#timeleft.paused {
+			color: #d65353;
+		}
+
 		/*	*	*	IMAGE HOLDER	*	*	*/
 		#imageholder {
 			position: 			relative;
@@ -216,6 +220,7 @@
 	const WELCOME_ID = "welcome";
 	const USER_CLICKABLE_NUMBER_ID = "usersecondsbox";
 	const MENTIONS_OF_SECONDS_CLASS = "numsec";
+	const PAUSED_CLASS = "paused";
 	const TIMELEFT_ID = "timeleft";
 	const TGH_ID = "tgh";
 	const PLAYPAUSE_ID = "playpause";
@@ -272,15 +277,18 @@
 
 		initializeButtons: function() {
 			// Bind circulator update to interface update
-			circulator.onUpdate = () => { viewerInterface.updateTimeIndicator() };
+			circulator.onUpdate = () => { viewerInterface.updateTimeIndicator(); };
 			circulator.onImageChanged = () => { imageHolder.setImage(viewerInterface.getCurrentImage()); };
+			circulator.onPlayPauseChanged = () => { viewerInterface.handlePlayPauseToggle(); };
 
 			// Bind click events
 			// These need to be anonymous functions so they don't break the subsequent invisible -this- parameter during function dereferencing
-			document.getElementById(RIGHTARROW_ID).addEventListener('click', () => { circulator.forceNext(); } );
-			document.getElementById(LEFTARROW_ID).addEventListener('click', () => { circulator.forcePrevious(); } );
-			document.getElementById(IMAGEHOLDER_ID).addEventListener('click', () => { imageHolder.toggleImageZoom(); } );
-			
+			document.getElementById(RIGHTARROW_ID).addEventListener('click', () => { circulator.forceNext(); });
+			document.getElementById(LEFTARROW_ID).addEventListener('click', () => { circulator.forcePrevious(); });
+			document.getElementById(IMAGEHOLDER_ID).addEventListener('click', () => { imageHolder.toggleImageZoom(); });
+			document.getElementById(TIMELEFT_ID).addEventListener('click', () => { viewerInterface.togglePlayPause(); });
+
+
 			// Bind event for when user changes files
 			var fileInputElement = document.getElementById("fileinput");
 			fileInputElement.setAttribute("accept", "image/*");
@@ -323,7 +331,7 @@
 					var validnumber = viewerInterface.getUserSecondsFieldValue();			// change text of site to reflect user change:
 					viewerInterface.changeAllMentionOfSeconds(validnumber);
 					
-					if( listData.isPopulated() ) {					// only trigger new duration if the list is populated
+					if (listData.isPopulated()) {					// only trigger new duration if the list is populated
 						circulator.newDuration();
 					}
 					
@@ -334,7 +342,7 @@
 			document.addEventListener("keydown", (event) => {
 				if (event.keyCode === KEY_LEFT)			{ circulator.forcePrevious();	}
 				if (event.keyCode === KEY_RIGHT)		{ circulator.forceNext(); 		}
-				if (event.keyCode === KEY_PLAYPAUSE)	{ circulator.togglePlayPause();	}
+				if (event.keyCode === KEY_PLAYPAUSE)	{ viewerInterface.togglePlayPause();	}
 			});
 
 		},
@@ -383,6 +391,20 @@
 			document.getElementById(TIMELEFT_ID).innerHTML = this.toDotRepresentation(circulator.secondsLeft, circulator.lastsecondsBetween);
 		},
 
+		togglePlayPause: function () {
+			circulator.togglePlayPause();
+		},
+
+		handlePlayPauseToggle: function() {
+			var timeLeftElement = document.getElementById(TIMELEFT_ID);
+			var timeLeftClassList = timeLeftElement.classList;
+			if (circulator.isActive) {
+				if (timeLeftClassList.contains(PAUSED_CLASS)) timeLeftClassList.remove(PAUSED_CLASS);
+			} else {
+				if (!timeLeftClassList.contains(PAUSED_CLASS)) timeLeftClassList.add(PAUSED_CLASS);
+			}
+		},
+
 		toDotRepresentation: (timeinSeconds, maxtime) => {
 			var dotstring = "";
 			var numofdots = timeinSeconds/maxtime * 90;
@@ -411,9 +433,7 @@
 		
 		togglePlayPause: function() {
 			this.isActive = !(this.isActive);
-			if (onPlayPauseChanged != null) onPlayPauseChanged();
-			// TODO: Make time left indicator clickable
-			// TODO: Make dots turn red when paused
+			if (this.onPlayPauseChanged != null) this.onPlayPauseChanged();
 			// TODO: Make play pause symbol visible when you hover over the dots (or the arrows?)
 			// TODO: make play symbol always visible when paused.
 		},
