@@ -420,7 +420,9 @@
 		},
 
 		playClackSound: function() {
-			document.getElementById("clacksound").play();
+			var clackElement = document.getElementById("clacksound");
+			clackElement.currentTime = 0;
+			clackElement.play();
 		},
 
 		toDotRepresentation: (timeinSeconds, maxtime) => {
