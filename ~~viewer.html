@@ -554,10 +554,14 @@
 
 			if (this.isImageZoomed) {
 				imageElement.style.maxHeight = "none";
+				imageElement.style.maxWidth = "none";
 			}
 			else if (!this.isImageZoomed) {
 				var targetHeight = window.innerHeight - 100;
 				imageElement.style.maxHeight = targetHeight + "px";
+
+				var targetWidth = window.innerWidth - 50;
+				imageElement.style.maxWidth = targetWidth + "px";
 			}
 		}
 	};
