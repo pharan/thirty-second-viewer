@@ -231,8 +231,9 @@
 	</style>
 	
 	<script type="text/javascript">
-	const VERSION = "2020.0713a"
+	const VERSION = "2021.0825b"
 	const CLICK_EVENT = "click";
+	const RESIZE_EVENT = "resize";
 	const THE_IMAGE_ID = "image";
 	const THE_IMAGECAPTION_ID = "imagecaption";
 	const WELCOME_ID = "welcome";
@@ -292,6 +293,11 @@
 		initialize: function() {
 			this.localizeText();
 			this.initializeButtons();
+			this.initializeWindowEvents();
+		},
+
+		initializeWindowEvents: function() {
+			window.addEventListener(RESIZE_EVENT, () => { imageHolder.recalculateMaxImageSize(); });
 		},
 
 		initializeButtons: function() {
@@ -550,6 +556,9 @@
 		},
 		toggleImageZoom: function() {
 			this.isImageZoomed = !this.isImageZoomed;
+			this.recalculateMaxImageSize();
+		},
+		recalculateMaxImageSize: function() {
 			var imageElement = document.getElementById(THE_IMAGE_ID);
 
 			if (this.isImageZoomed) {
@@ -563,7 +572,7 @@
 				var targetWidth = window.innerWidth - 50;
 				imageElement.style.maxWidth = targetWidth + "px";
 			}
-		}
+		},
 	};
 
 	// *		*		*		*		*		 LIST DATA OBJECT 			*		*		*		*		*
