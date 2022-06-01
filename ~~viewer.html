@@ -8,7 +8,7 @@
 
 	<style type="text/css">
 		body {
-			font-family: "Open Sans", "Inter UI", "San Francisco", "Segue UI", "Helvetica", "Arial", sans-serif;
+			font-family: "Inter", "Inter UI", "San Francisco", "Segue UI", "Open Sans", "Helvetica", "Arial", sans-serif;
 			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAALVBMVEXi4uLj4+Pk5OTl5eXm5ubn5+fo6Ojp6enq6urr6+vs7Ozt7e3u7u7v7+/w8PDpFgWzAAAEBElEQVR4Xg3Rz3LTRhgA8D32RUKGaykOuROwOXUg0kYh7XRK5bUCPTTx7refnBNEWq3CiXq1+ynuhSn+A0xPDU6gVwgGXqO3PkR5g9/Mj7mtMAOUp2c3Dq+G9N21MR0kqtwvOQN46rIgsCG4EZSP7fV0f+nwd2AcZVRvd6nqX/wGs93PXu64E++jmiXN7vGRAxPZ2CHQl3TZKW8fQs8zGmbt7uXAzXYFEWnTMT738WLHMv6ATM9wqUuw/K/jK9XMznqUOWJOEgyaputPoqAUgMGiNU4PGzYqyXPZDT4pQOo7cge225cIB5xdmd4/hO01t/nni6shL0zcohGDaw1ntwrDoTDrGvQq5Z8/wMBUEsWjFyw8dBZOfNcnvkIZNMm8KvS+uGQRHJUdBN96qE7GWzx+Wi0eqOEhspsmcKUwd81TMZ33FsBN4vA7CazBoa0scEAvaHV16ZuFkIK6hvlvHNBoHiHJd6NpBaHRz28DBcUMZmZJUnq9U+rHGZi+1uZTn4glxzjjZSRRxutnu6PUw/HkLoxUyyrLp4kIVZMYvkjsBZDsXQg3KJkneonwJk9bb0jogq8S6zM3NOzexYt4P82/bLzvVA7rbhPb1b3LGixT8pfBqJxQXW04g8MENNo/Hu9YyYxJiz1X9jHgmd8bYxPWfSoEBjbO6nQeUerrMEbeBnPjkD//1VeK1f4hScztT8Xomb25riE7G5wqPPzEJqqK5QISOwX/9R8FIlDFJTC58dWOHyE8lLVptSlq8Dlxv8GO094b7vvBAweAyFFK1Hl/QoZtEYhlJiexBJy5D26iIcKDV+BYpISw6X9r5pbLZcxX7SSN3VrTZAwaXhVm7wEJrQC5T7wnFzzmDBc+hJZ/1P5o2fYJvBB0aTPos5osB/AVfz3qqwBlkSlb7EQomSoduZEIRXQkpa5QRH6geLpvGR7qlVJJ7odJ69qRQlPXoKBBtlKPTCGxl56Gyhv545yav3vGNLvsYjHedCNl4gm5DcO1T6Li/iw6Fay8XSZJdawyudD9WSaJlIizxS3ODmI37KGDtshK3Grw+4Sc3qu4YFbN74lgjrxtUMfwL38EAYhrz1q0S5htFhJM4otBTdKMSklrnlW5z1/KbbX/1g6N0jjsv1KhlvwTExdS4RBOBf+5oaNcuiUIs9yaeAbjQBG353I2/OG8H+Zmpnmgb/8pGYlyoTbPefhgNoG8WMxUYueNj9jGET3bVbDekENZbRO/fKIjByZjSV7Orlde+lEUoCOCRQNStHPOLD9+6yGbVttXrABEaWKz129Tz9I7BZ6DjitAPGjFcogxUh/uEuMrnphBXEOR5gcIr4iKSYPdaZ9pKVwHNNJSVIVpTsB7imT0uvgf5PFlKRRtYrEAAAAASUVORK5CYII=);
 		}
 		
@@ -241,7 +241,7 @@
 	</style>
 	
 	<script type="text/javascript">
-	const VERSION = "2022.0227b"
+	const VERSION = "2022.0601b"
 	const CLICK_EVENT = "click";
 	const RESIZE_EVENT = "resize";
 	const THE_IMAGE_ID = "image";
@@ -272,7 +272,7 @@
 	const KEY_ENTER = 13;
 	const KEY_LEFT = 37;
 	const KEY_RIGHT = 39;
-	const KEY_PLAYPAUSE = 32;
+	const KEY_PLAYPAUSE = 32; // spacebar
 	const KEY_R = 82;
 
 	var REST_OF_TITLE = "-Second Viewer";
@@ -288,7 +288,7 @@
 		return url;
 	}();
 
-	document.addEventListener('DOMContentLoaded', function() {
+	document.addEventListener('DOMContentLoaded', () => {
 		if (window.File && window.FileReader && window.FileList && window.Blob) {	//check for file-reader compatibility
 			viewerInterface.initialize();
 		} else {
@@ -298,43 +298,42 @@
 
 	// *		*		*		*		*		 VIEWER INTERFACE OBJECT		*		*		*		*		* 
 	var viewerInterface = {
-		getCustomNumberElement: function() { return document.getElementById(USER_CLICKABLE_NUMBER_ID); },
-		getUserSecondsFieldValue: function() { return this.getCustomNumberElement().value; },
-		getValidUserSeconds: function() { return parseInt(this.getUserSecondsFieldValue(), 10); },
-		getCurrentImage: function() { return listData.fileNameArray[circulator.getCurrentImageIndex()]; },
+		getCustomNumberElement: () => document.getElementById(USER_CLICKABLE_NUMBER_ID),
+		getUserSecondsFieldValue: () => this.getCustomNumberElement().value,
+		getValidUserSeconds: () => parseInt(this.getUserSecondsFieldValue(), 10),
+		getCurrentImage: () => listData.fileNameArray[circulator.getCurrentImageIndex()],
 
-		initialize: function() {
+		initialize: () => {
 			this.localizeText();
 			this.initializeButtons();
 			this.initializeWindowEvents();
 		},
 
-		initializeWindowEvents: function() {
+		initializeWindowEvents: () => {
 			window.addEventListener(RESIZE_EVENT, () => { imageHolder.recalculateMaxImageSize(); });
 		},
 
-		initializeButtons: function() {
+		initializeButtons: () => {
 			// Bind circulator update to interface update
-			circulator.onUpdate = () => { viewerInterface.updateTimeIndicator(); };
-			circulator.onImageChanged = () => { imageHolder.setImage(viewerInterface.getCurrentImage()); };
-			circulator.onPlayPauseChanged = () => { viewerInterface.handlePlayPauseToggle(); };
+			circulator.onUpdate = () => viewerInterface.updateTimeIndicator();
+			circulator.onImageChanged = () => imageHolder.setImage(viewerInterface.getCurrentImage());
+			circulator.onPlayPauseChanged = () => viewerInterface.handlePlayPauseToggle();
 
 			// Bind click events
-			// These need to be anonymous functions so they don't break the subsequent invisible -this- parameter during function dereferencing
-			document.getElementById(RIGHTARROW_ID).addEventListener(CLICK_EVENT, () => { circulator.forceNext(); });
-			document.getElementById(LEFTARROW_ID).addEventListener(CLICK_EVENT, () => { circulator.forcePrevious(); });
-			document.getElementById(RESTARTBUTTON_ID).addEventListener(CLICK_EVENT, () => { circulator.restartTimer(); });
-			document.getElementById(IMAGEHOLDER_ID).addEventListener(CLICK_EVENT, () => { imageHolder.toggleImageZoom(); });
-			document.getElementById(TIMELEFT_ID).addEventListener(CLICK_EVENT, () => { viewerInterface.togglePlayPause(); });
+			document.getElementById(RIGHTARROW_ID).addEventListener(CLICK_EVENT, () => irculator.forceNext());
+			document.getElementById(LEFTARROW_ID).addEventListener(CLICK_EVENT, () => circulator.forcePrevious());
+			document.getElementById(RESTARTBUTTON_ID).addEventListener(CLICK_EVENT, () => circulator.restartTimer());
+			document.getElementById(IMAGEHOLDER_ID).addEventListener(CLICK_EVENT, () => imageHolder.toggleImageZoom());
+			document.getElementById(TIMELEFT_ID).addEventListener(CLICK_EVENT, () => viewerInterface.togglePlayPause());
 
 			// Bind event for when user changes files
 			var fileInputElement = document.getElementById("fileinput");
-			fileInputElement.setAttribute("accept", "image/*");
+			fileInputElement.setAttribute("accept", "image/*");		// Only accept image files (as supported by the browser)
 			fileInputElement.addEventListener("change", () => {
-				listData.newFileArray();
+				listData.createNewFileArray();
 				viewerInterface.initializeImage();
 				viewerInterface.refreshSubHeader();
-			});			
+			});
 			
 			var numberElement = this.getCustomNumberElement();
 
@@ -344,7 +343,7 @@
 				numberElement.select();
 			});
 
-			numberElement.addEventListener("keydown", function(event) {
+			numberElement.addEventListener("keydown", (event) => {
 				var valToCheck = parseInt(numberElement.value, 10);
 				var interfaceCustomNumberElement = viewerInterface.getCustomNumberElement();
 			
@@ -370,17 +369,17 @@
 				}
 			});
 			
-			// Bind keyboard input
+			// Keyboard shortcuts
 			document.addEventListener("keydown", (event) => {
 				if (event.keyCode === KEY_R)			{ circulator.restartTimer();			}
 				if (event.keyCode === KEY_LEFT)			{ circulator.forcePrevious();			}
 				if (event.keyCode === KEY_RIGHT)		{ circulator.forceNext(); 				}
-				if (event.keyCode === KEY_PLAYPAUSE)	{ viewerInterface.togglePlayPause();	}
+				//if (event.keyCode === KEY_PLAYPAUSE)	{ viewerInterface.togglePlayPause();	}
 			});
 
 		},
 
-		localizeText: function() {
+		localizeText: () => {
 			if (Math.floor((Math.random() * 50)) == 20) REST_OF_TITLE = "-Second Hamburger";	//proc hamburger
 
 			var secondsSetting = this.getCustomNumberElement().value;
@@ -394,7 +393,7 @@
 			document.querySelectorAll(".viewerfilename").forEach((el) => { el.innerHTML = VIEWER_FILENAME; });
 			document.getElementById(VERSION_ID).innerHTML = "v" + VERSION;
 
-			var WARNING_TITLES = ["ACHTUNG!", "CAUTION!", "ATTENTION!", "WARNING!", "DESU DESU!!", "ADVERTENCIA!"];
+			var WARNING_TITLES = ["ACHTUNG!", "CAUTION!", "ATTENTION!", "WARNING!", "ADVERTENCIA!"];
 			var titlerand = Math.floor((Math.random() * WARNING_TITLES.length))
 			document.getElementById("warningtitle").innerHTML = WARNING_TITLES[titlerand];
 
@@ -403,45 +402,47 @@
 			welcomeClassList.remove("helpoff");
 		},
 
-		initializeImage: function() {
+		initializeImage: () => {
 			imageHolder.toggleImageZoom();
 			imageHolder.setImage(viewerInterface.getCurrentImage());
 		},
 
-		refreshSubHeader: function() {
+		refreshSubHeader: () => {
 			document.getElementById(TGH_ID).innerHTML = "[ " + listData.getLength() + " images" + " : <span class='" + MENTIONS_OF_SECONDS_CLASS  + "'>" +  circulator.lastsecondsBetween + "</span> seconds each ]";
 			var welcomeClassList = document.getElementById(WELCOME_ID).classList;
 			welcomeClassList.remove("helpon");
 			welcomeClassList.add("helpoff");
 		},
 
-		changeAllMentionOfSeconds: function(numofseconds) {
+		changeAllMentionOfSeconds: (numofseconds) => {
 			this.getCustomNumberElement().value = numofseconds;
 			document.querySelector("title").innerHTML = numofseconds + REST_OF_TITLE;		
 			document.querySelectorAll(MENTIONS_OF_SECONDS_SELECTOR).forEach((el) => { el.innerHTML = numofseconds; });
 			viewerInterface.playClackSound();
 		},
 
-		updateTimeIndicator: function() {
+		updateTimeIndicator: () => {
 			document.getElementById(TIMELEFT_ID).innerHTML = this.toDotRepresentation(circulator.secondsLeft, circulator.lastsecondsBetween);
 		},
 
-		togglePlayPause: function () {
+		togglePlayPause: () => {
 			circulator.togglePlayPause();
 			viewerInterface.playClackSound();
 		},
 
-		handlePlayPauseToggle: function() {
+		handlePlayPauseToggle: () => {
 			var timeLeftElement = document.getElementById(TIMELEFT_ID);
 			var timeLeftClassList = timeLeftElement.classList;
+			var isPausedClass = timeLeftClassList.contains(PAUSED_CLASS);
+
 			if (circulator.isActive) {
-				if (timeLeftClassList.contains(PAUSED_CLASS)) timeLeftClassList.remove(PAUSED_CLASS);
+				if (isPausedClass) timeLeftClassList.remove(PAUSED_CLASS);
 			} else {
-				if (!timeLeftClassList.contains(PAUSED_CLASS)) timeLeftClassList.add(PAUSED_CLASS);
+				if (!isPausedClass) timeLeftClassList.add(PAUSED_CLASS);
 			}
 		},
 
-		playClackSound: function() {
+		playClackSound: () => {
 			var clackElement = document.getElementById("clacksound");
 			clackElement.currentTime = 0;
 			clackElement.play();
@@ -450,9 +451,9 @@
 		toDotRepresentation: (timeinSeconds, maxtime) => {
 			var dotstring = "";
 			var numofdots = timeinSeconds/maxtime * 90;
-			for(var rrr = 0; rrr < numofdots; rrr++) {
+			for (var rrr = 0; rrr < numofdots; rrr++) {
 				dotstring = dotstring + ".";
-				if( (rrr + 1) % 30 == 0 && rrr != 0) dotstring += "<br />";
+				if ( (rrr + 1) % 30 == 0 && rrr != 0) dotstring += "<br />";
 			}
 			return dotstring;
 		}
@@ -468,17 +469,17 @@
 		lastsecondsBetween: 30,
 		secondsBetween: 30,
 		MINIMUM_SECONDS: 5,
-		counter: 0,
+		timerId: 0,
 		onUpdate: null,
 		onImageChanged: null,
 		onPlayPauseChanged: null,
 		
-		togglePlayPause: function() {
+		togglePlayPause: () => {
 			this.isActive = !(this.isActive);
 			if (this.onPlayPauseChanged != null) this.onPlayPauseChanged();
 		},
 		
-		updateTime: function() {
+		updateTime: () => {
 			if (this.isActive) {
 				this.secondsLeft -= TIMER_UPDATE_INTERVAL_SECONDS;
 				if (this.secondsLeft < 0) {
@@ -489,47 +490,44 @@
 			}
 		},
 
-		initTimer: function() {
+		initializeTimer: () => {
 			this.restartTimer();
-			
-			clearInterval(this.counter);				//stop the previous counter (if it exists?)
-			this.counter = setInterval(	() => {	circulator.updateTime(); },
-										TIMER_UPDATE_INTERVAL_SECONDS * 1000
-										);
+			clearInterval(this.timerId);
+			this.timerId = setInterval(() => circulator.updateTime(), TIMER_UPDATE_INTERVAL_SECONDS * 1000);
 		},
-		restartTimer: function() {
+		restartTimer: () => {
 			this.readTextBoxTime();
 			this.lastsecondsBetween = this.secondsBetween;
 			this.secondsLeft = this.secondsBetween;
 			viewerInterface.playClackSound();
 		},
-		readTextBoxTime: function() {
+		readTextBoxTime: () => {
 			this.secondsBetween	= viewerInterface.getValidUserSeconds();
 		},
 		
-		newDuration: function() {
+		newDuration: () => {
 			this.restartTimer();
 			if (this.onUpdate != null) this.onUpdate();
 		},
-		forceNext: function() {
+		forceNext: () => {
 			if (listData.isPopulated()) {
 				this.next();
 				this.newDuration();
 			}
 		},
-		forcePrevious: function() {
+		forcePrevious: () => {
 			if (listData.isPopulated()) {
 				this.prev();
 				this.newDuration();
 			}
 		},
-		next: function() {
+		next: () => {
 			if (this.currentNumber < listData.fileNameArray.length - 1) this.currentNumber++;
 			else this.currentNumber = 0;
 			
 			if (this.onImageChanged != null) this.onImageChanged();			
 		},
-		prev: function() {
+		prev: () => {
 			if (this.currentNumber > 0) this.currentNumber--;
 			else this.currentNumber = listData.fileNameArray.length - 1;
 			if (this.onImageChanged != null) this.onImageChanged();
@@ -539,19 +537,19 @@
 		// Instead of shuffling the filename array, or just randomly picking from it.
 		// An persistent array of shuffled indexes is kept so the user can freely go back to a previous image.
 		imageOrder: [],
-		getCurrentImageIndex: () => { return circulator.imageOrder[circulator.currentNumber]; },
-		newOrder: function() {
+		getCurrentImageIndex: () => circulator.imageOrder[circulator.currentNumber],
+		startNewOrder: () => {
 			this.resetImageOrder();
 			this.shuffleImageOrder();
 			if (this.onImageChanged != null) this.onImageChanged();
 		},
-		resetImageOrder: function() {
+		resetImageOrder: () => {
 			this.imageOrder = new Array(listData.fileNameArray.length);
-			for(var qq = 0; qq < this.imageOrder.length; qq++) {
+			for (var qq = 0; qq < this.imageOrder.length; qq++) {
 				this.imageOrder[qq] = qq;
 			}
 		},
-		shuffleImageOrder: function() {
+		shuffleImageOrder: () => {
 			var iterations = Math.floor(this.imageOrder.length * 2 / 3);
 			for (var xx = 0; xx < iterations; xx++) {
 				var swapBuffer = this.imageOrder[xx];
@@ -565,16 +563,16 @@
 	// *		*		*		*		*		 IMAGE HOLDER OBJECT 		*		*		*		*		*
 	var imageHolder = {
 		isImageZoomed: true,
-		setImage: function(filename) {
+		setImage: (filename) => {
 			var imageElement = document.getElementById(THE_IMAGE_ID);
 			imageElement.setAttribute("src", "" + filename);
 			document.getElementById(THE_IMAGECAPTION_ID).innerHTML = imageElement.getAttribute("src");
 		},
-		toggleImageZoom: function() {
+		toggleImageZoom: () => {
 			this.isImageZoomed = !this.isImageZoomed;
 			this.recalculateMaxImageSize();
 		},
-		recalculateMaxImageSize: function() {
+		recalculateMaxImageSize: () => {
 			var imageElement = document.getElementById(THE_IMAGE_ID);
 
 			if (this.isImageZoomed) {
@@ -599,7 +597,7 @@
 		getLength: () => listData.fileNameArray.length,
 		isPopulated: () => listData.getLength() > 1,
 
-		newFileArray: function() {
+		createNewFileArray: () => {
 			theFileArray = document.getElementById("fileinput").files;		// take the files array from the <input> tag
 
 			// Copy the filenames from the file array
@@ -608,8 +606,8 @@
 				this.fileNameArray[i] = theFileArray[i].name;
 			}
 
-			circulator.newOrder();
-			circulator.initTimer();
+			circulator.startNewOrder();
+			circulator.initializeTimer();
 		}
 	};	
 	</script>
