@@ -241,7 +241,7 @@
 	</style>
 
 	<script type="text/javascript">
-	const VERSION = "2022.0601f"
+	const VERSION = "2022.0601g"
 
 	const THE_IMAGE_ID = "image";
 	const THE_IMAGECAPTION_ID = "imagecaption";
@@ -257,7 +257,7 @@
 	const LEFTARROW_ID = "leftarrow";
 	const RIGHTARROW_ID = "rightarrow";
 	const IMAGEHOLDER_ID = "imageholder";
-	
+
 	const LEFTARROW_UNICODE = "&lsaquo;";
 	const RIGHTARROW_UNICODE = "&rsaquo;";
 	const RESTARTBUTTON_UNICODE = "&#8634;"
@@ -268,11 +268,7 @@
 
 	const TIMER_UPDATE_INTERVAL_SECONDS = 0.25;
 	const DEFAULT_SECONDS = 30;
-	
-	const EVENT_CLICK = "click";
-	const EVENT_RESIZE = "resize";
-	const EVENT_KEYDOWN = "keydown";
-	
+
 	// event.key
 	const KEY_ENTER = "Enter";
 	const KEY_PREVIOUS = "ArrowLeft";
@@ -283,7 +279,7 @@
 	var REST_OF_TITLE = "-Second Viewer";
 	var theFileArray = 0;
 	var viewHelp = false;
-	
+
 	var VIEWER_FILENAME = function() {
 		var url = document.location.href;
 		url = url.substring(0, (url.indexOf("#") == -1) ? url.length : url.indexOf("#"));
@@ -317,7 +313,7 @@
 		},
 
 		initializeWindowEvents() {
-			window.addEventListener(EVENT_RESIZE, () => imageHolder.recalculateMaxImageSize());
+			window.addEventListener("resize", () => imageHolder.recalculateMaxImageSize());
 		},
 
 		initializeButtons() {
@@ -327,7 +323,7 @@
 			circulator.onPlayPauseChanged = () => viewerInterface.handlePlayPauseToggle();
 
 			// Bind click events
-			const bindClickAction = (elementId, action) => document.getElementById(elementId).addEventListener(EVENT_CLICK, action);
+			const bindClickAction = (elementId, action) => document.getElementById(elementId).addEventListener("click", action);
 			bindClickAction(RIGHTARROW_ID, () => circulator.forceNext());
 			bindClickAction(LEFTARROW_ID, () => circulator.forcePrevious());
 			bindClickAction(RESTARTBUTTON_ID, () => circulator.restartTimer());
@@ -345,19 +341,19 @@
 
 			// Bind custom-time textbox events
 			var secondsFieldElement = this.getCustomNumberElement();
-			secondsFieldElement.addEventListener(EVENT_CLICK, () => {
+			secondsFieldElement.addEventListener("click", () => {
 				secondsFieldElement.focus();
 				secondsFieldElement.select();
 			});
 
-			secondsFieldElement.addEventListener(EVENT_KEYDOWN, (event) => {
+			secondsFieldElement.addEventListener("keydown", (event) => {
 				if (event.key === KEY_ENTER) {
 					event.preventDefault();
 					viewerInterface.getCustomNumberElement().blur();		// lose focus on textbox
-					
+
 					viewerInterface.validateSecondsFieldTextBox();
 					viewerInterface.updateMentionsOfSeconds();
-					
+
 					if (imageList.isPopulated) {					// only trigger new duration if the list is populated
 						circulator.startNewImageDuration();
 					}
@@ -365,28 +361,28 @@
 			});
 
 			// Keyboard shortcuts
-			document.addEventListener(EVENT_KEYDOWN, (event) => {
+			document.addEventListener("keydown", (event) => {
 				if (event.key === KEY_RESTART)		{ circulator.restartTimer();			}
 				if (event.key === KEY_PREVIOUS)		{ circulator.forcePrevious();			}
-				if (event.key === KEY_NEXT)			{ circulator.forceNext(); 				}
+				if (event.key === KEY_NEXT)			{ circulator.forceNext();				}
 				if (event.key === KEY_PLAYPAUSE)	{ viewerInterface.togglePlayPause();	}
 			});
 
 		},
-		
+
 		validateSecondsFieldTextBox() {
 			var secondsFieldElement = this.getCustomNumberElement();
 			const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
-			
+
 			var processedValue = parseInt(secondsFieldElement.value, 10);
 			if (isNaN(processedValue)) {
 				processedValue = DEFAULT_SECONDS;
 			}
 			processedValue = clamp(processedValue, circulator.MINIMUM_SECONDS, circulator.MAXIMUM_SECONDS);
-			
+
 			secondsFieldElement.value = processedValue;
 		},
-		
+
 		updateMentionsOfSeconds() {
 			var secondsFieldValue = this.getUserSecondsFieldValue();
 			this.changeAllMentionOfSeconds(secondsFieldValue);
@@ -547,15 +543,15 @@
 		movePrevious() {
 			this.moveCurrentNumberBy(-1);
 		},
-		
+
 		moveCurrentNumberBy(increment) {
 			this.currentNumber = this.currentNumber + increment;
-			
+
 			var max = imageList.length - 1;
-			
+
 			if (this.currentNumber > max) this.currentNumber = 0;
 			if (this.currentNumber < 0) this.currentNumber = max;
-			
+
 			this.onImageChanged?.();
 		},
 
@@ -602,7 +598,7 @@
 			imageElement.setAttribute("src", "" + filename);
 			this.setCaption(imageElement.getAttribute("src"));
 		},
-		
+
 		setCaption(newCaption) {
 			document.getElementById(THE_IMAGECAPTION_ID).innerHTML = newCaption;
 		},
@@ -636,13 +632,13 @@
 		get length() {
 			return this.fileNameArray.length
 		},
-		
+
 		get isPopulated() {
 			return this.length > 1
 		},
-		
+
 		getImageByIndex(index) {
-			return this.fileNameArray[index];	
+			return this.fileNameArray[index];
 		},
 
 		loadNewFileArray() {
