@@ -48,7 +48,7 @@
 
 		/*	*	*	HEADER	*	*	*/
 		#usersecondsbox, header h1 {
-			font-family: 	"Open Sans Light", "Segoe UI Light", "Museo Sans 500", "Gotham Book", "Open Sans", "Trebuchet", "Helvetica", "Arial", sans-serif;
+			font-family: 	"Inter", "Inter UI", "San Francisco", "Segue UI", "Segoe UI Light", "Museo Sans 500", "Gotham Book", "Open Sans", "Trebuchet", "Helvetica", "Arial", sans-serif;
 			font-size:		30px;
 			font-weight: 	normal;
 			color:			#777;
@@ -241,9 +241,8 @@
 	</style>
 
 	<script type="text/javascript">
-	const VERSION = "2022.0601e"
-	const CLICK_EVENT = "click";
-	const RESIZE_EVENT = "resize";
+	const VERSION = "2022.0601f"
+
 	const THE_IMAGE_ID = "image";
 	const THE_IMAGECAPTION_ID = "imagecaption";
 	const WELCOME_ID = "welcome";
@@ -258,8 +257,7 @@
 	const LEFTARROW_ID = "leftarrow";
 	const RIGHTARROW_ID = "rightarrow";
 	const IMAGEHOLDER_ID = "imageholder";
-	const TIMER_UPDATE_INTERVAL_SECONDS = 0.25;
-
+	
 	const LEFTARROW_UNICODE = "&lsaquo;";
 	const RIGHTARROW_UNICODE = "&rsaquo;";
 	const RESTARTBUTTON_UNICODE = "&#8634;"
@@ -268,12 +266,19 @@
 
 	var MENTIONS_OF_SECONDS_SELECTOR = "." + MENTIONS_OF_SECONDS_CLASS;
 
+	const TIMER_UPDATE_INTERVAL_SECONDS = 0.25;
 	const DEFAULT_SECONDS = 30;
-	const KEY_ENTER = 13;
-	const KEY_LEFT = 37;
-	const KEY_RIGHT = 39;
-	const KEY_PLAYPAUSE = 32; // spacebar
-	const KEY_R = 82;
+	
+	const EVENT_CLICK = "click";
+	const EVENT_RESIZE = "resize";
+	const EVENT_KEYDOWN = "keydown";
+	
+	// event.key
+	const KEY_ENTER = "Enter";
+	const KEY_PREVIOUS = "ArrowLeft";
+	const KEY_NEXT = "ArrowRight";
+	const KEY_RESTART = "r"
+	const KEY_PLAYPAUSE = "p";
 
 	var REST_OF_TITLE = "-Second Viewer";
 	var theFileArray = 0;
@@ -312,7 +317,7 @@
 		},
 
 		initializeWindowEvents() {
-			window.addEventListener(RESIZE_EVENT, () => imageHolder.recalculateMaxImageSize());
+			window.addEventListener(EVENT_RESIZE, () => imageHolder.recalculateMaxImageSize());
 		},
 
 		initializeButtons() {
@@ -322,11 +327,12 @@
 			circulator.onPlayPauseChanged = () => viewerInterface.handlePlayPauseToggle();
 
 			// Bind click events
-			document.getElementById(RIGHTARROW_ID).addEventListener(CLICK_EVENT, () => circulator.forceNext());
-			document.getElementById(LEFTARROW_ID).addEventListener(CLICK_EVENT, () => circulator.forcePrevious());
-			document.getElementById(RESTARTBUTTON_ID).addEventListener(CLICK_EVENT, () => circulator.restartTimer());
-			document.getElementById(IMAGEHOLDER_ID).addEventListener(CLICK_EVENT, () => imageHolder.toggleImageZoom());
-			document.getElementById(TIMELEFT_ID).addEventListener(CLICK_EVENT, () => viewerInterface.togglePlayPause());
+			const bindClickAction = (elementId, action) => document.getElementById(elementId).addEventListener(EVENT_CLICK, action);
+			bindClickAction(RIGHTARROW_ID, () => circulator.forceNext());
+			bindClickAction(LEFTARROW_ID, () => circulator.forcePrevious());
+			bindClickAction(RESTARTBUTTON_ID, () => circulator.restartTimer());
+			bindClickAction(IMAGEHOLDER_ID, () => imageHolder.toggleImageZoom());
+			bindClickAction(TIMELEFT_ID, () => viewerInterface.togglePlayPause());
 
 			// Bind event for when user changes files
 			var fileInputElement = document.getElementById("fileinput");
@@ -337,48 +343,53 @@
 				viewerInterface.refreshSubHeader();
 			});
 
-			var numberElement = this.getCustomNumberElement();
-
 			// Bind custom-time textbox events
-			numberElement.addEventListener("click", () => {
-				numberElement.focus();
-				numberElement.select();
+			var secondsFieldElement = this.getCustomNumberElement();
+			secondsFieldElement.addEventListener(EVENT_CLICK, () => {
+				secondsFieldElement.focus();
+				secondsFieldElement.select();
 			});
 
-			numberElement.addEventListener("keydown", (event) => {
-				var valToCheck = parseInt(numberElement.value, 10);
-				var interfaceCustomNumberElement = viewerInterface.getCustomNumberElement();
-
-				if (event.keyCode === KEY_ENTER) {
+			secondsFieldElement.addEventListener(EVENT_KEYDOWN, (event) => {
+				if (event.key === KEY_ENTER) {
 					event.preventDefault();
-					interfaceCustomNumberElement.blur();		// lose focus on textbox
-
-					// TODO: Move this to a separate validate() method.
-					if (isNaN(valToCheck)) {
-						interfaceCustomNumberElement.value = DEFAULT_SECONDS;	// if it's an invalid value, reset to default (30)
-					} else if (valToCheck < circulator.MINIMUM_SECONDS) {
-						interfaceCustomNumberElement.value = circulator.MINIMUM_SECONDS;
-					}
-
-					// At this point, the number in USER_CLICKABLE_NUMBER should be valid.
-					var validnumber = viewerInterface.getUserSecondsFieldValue();			// change text of site to reflect user change:
-					viewerInterface.changeAllMentionOfSeconds(validnumber);
-
+					viewerInterface.getCustomNumberElement().blur();		// lose focus on textbox
+					
+					viewerInterface.validateSecondsFieldTextBox();
+					viewerInterface.updateMentionsOfSeconds();
+					
 					if (imageList.isPopulated) {					// only trigger new duration if the list is populated
 						circulator.startNewImageDuration();
 					}
-
 				}
 			});
 
 			// Keyboard shortcuts
-			document.addEventListener("keydown", (event) => {
-				if (event.keyCode === KEY_R)			{ circulator.restartTimer();			}
-				if (event.keyCode === KEY_LEFT)			{ circulator.forcePrevious();			}
-				if (event.keyCode === KEY_RIGHT)		{ circulator.forceNext(); 				}
-				//if (event.keyCode === KEY_PLAYPAUSE)	{ viewerInterface.togglePlayPause();	}
+			document.addEventListener(EVENT_KEYDOWN, (event) => {
+				if (event.key === KEY_RESTART)		{ circulator.restartTimer();			}
+				if (event.key === KEY_PREVIOUS)		{ circulator.forcePrevious();			}
+				if (event.key === KEY_NEXT)			{ circulator.forceNext(); 				}
+				if (event.key === KEY_PLAYPAUSE)	{ viewerInterface.togglePlayPause();	}
 			});
 
+		},
+		
+		validateSecondsFieldTextBox() {
+			var secondsFieldElement = this.getCustomNumberElement();
+			const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+			
+			var processedValue = parseInt(secondsFieldElement.value, 10);
+			if (isNaN(processedValue)) {
+				processedValue = DEFAULT_SECONDS;
+			}
+			processedValue = clamp(processedValue, circulator.MINIMUM_SECONDS, circulator.MAXIMUM_SECONDS);
+			
+			secondsFieldElement.value = processedValue;
+		},
+		
+		updateMentionsOfSeconds() {
+			var secondsFieldValue = this.getUserSecondsFieldValue();
+			this.changeAllMentionOfSeconds(secondsFieldValue);
 		},
 
 		localizeText() {
@@ -451,13 +462,13 @@
 		},
 
 		toDotRepresentation(timeinSeconds, maxtime) {
-			var dotstring = "";
-			var numofdots = timeinSeconds/maxtime * 90;
-			for (var rrr = 0; rrr < numofdots; rrr++) {
-				dotstring = dotstring + ".";
-				if ( (rrr + 1) % 30 == 0 && rrr != 0) dotstring += "<br />";
+			var dotString = "";
+			var numOfDots = timeinSeconds / maxtime * 90;
+			for (var i = 0; i < numOfDots; i++) {
+				dotString = dotString + ".";
+				if ( (i + 1) % 30 == 0 && i != 0) dotString += "<br />";
 			}
-			return dotstring;
+			return dotString;
 		}
 
 	};
@@ -471,6 +482,7 @@
 		lastsecondsBetween: 30,
 		secondsBetween: 30,
 		MINIMUM_SECONDS: 5,
+		MAXIMUM_SECONDS: 3600,
 		timerId: 0,
 		onUpdate: null,
 		onImageChanged: null,
@@ -563,18 +575,19 @@
 		},
 
 		resetImageOrder() {
-			this.imageOrder = new Array(imageList.length);
-			for (var qq = 0; qq < this.imageOrder.length; qq++) {
-				this.imageOrder[qq] = qq;
+			var n = imageList.length;
+			this.imageOrder = new Array(n);
+			for (var i = 0; i < n; i++) {
+				this.imageOrder[i] = i;
 			}
 		},
 
 		shuffleImageOrder() {
 			var iterations = Math.floor(this.imageOrder.length * 2 / 3);
-			for (var xx = 0; xx < iterations; xx++) {
-				var swapBuffer = this.imageOrder[xx];
+			for (var i = 0; i < iterations; i++) {
+				var swapBuffer = this.imageOrder[i];
 				var swapPartner = Math.floor((Math.random() * this.imageOrder.length));
-				this.imageOrder[xx] = this.imageOrder[swapPartner];
+				this.imageOrder[i] = this.imageOrder[swapPartner];
 				this.imageOrder[swapPartner] = swapBuffer;
 			}
 		},
@@ -587,7 +600,11 @@
 		setImage(filename) {
 			var imageElement = document.getElementById(THE_IMAGE_ID);
 			imageElement.setAttribute("src", "" + filename);
-			document.getElementById(THE_IMAGECAPTION_ID).innerHTML = imageElement.getAttribute("src");
+			this.setCaption(imageElement.getAttribute("src"));
+		},
+		
+		setCaption(newCaption) {
+			document.getElementById(THE_IMAGECAPTION_ID).innerHTML = newCaption;
 		},
 
 		toggleImageZoom() {
