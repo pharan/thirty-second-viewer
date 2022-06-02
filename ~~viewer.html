@@ -242,7 +242,7 @@
 
 	<script type="text/javascript">
 	"use strict";
-	const VERSION = "2022.0602g"
+	const VERSION = "2022.0602h"
 
 	const THE_IMAGE_ID = "image";
 	const THE_IMAGECAPTION_ID = "imagecaption";
@@ -305,7 +305,7 @@
 		getValidUserSeconds() { return parseInt(this.getUserSecondsFieldValue(), 10); },
 
 		get currentImage() {
-			return imageList.getImageByIndex(circulator.currentImageIndex);
+			return imageList.getImageByIndex(circulator.currentIndex);
 		},
 
 		initialize() {
@@ -357,13 +357,9 @@
 				if (event.key === KEY_ENTER) {
 					event.preventDefault();
 					viewerInterface.getUserSecondsField().blur();		// lose focus on textbox
-
 					viewerInterface.validateSecondsFieldTextBox();
 					viewerInterface.updateMentionsOfSeconds();
-
-					if (imageList.isPopulated) {					// only trigger new duration if the list is populated
-						circulator.startNewDuration();
-					}
+					circulator.tryStartNewDuration();
 				}
 			});
 
@@ -490,12 +486,9 @@
 		timerId: 0,
 		getDurationSeconds: null,
 		onUpdate: null,
-		onCurrentNumberChanged: null,
 		onPlayPauseChanged: null,
 		onTimerRestart: null,
 		onTimerElapsed: () => { circulator.moveNext(); },
-		
-		currentNumber: 0,
 
 		togglePlayPause() {
 			this.isActive = !(this.isActive);
@@ -529,50 +522,38 @@
 		refreshDurationSetting() {
 			this.secondsBetween = this.getDurationSeconds();
 		},
+		
+		tryStartNewDuration() {
+			if (this.isPopulated) {
+				this.startNewDuration();
+			}
+		},
 
 		startNewDuration() {
 			this.restartTimer();
 			this.onUpdate?.();
 		},
 
-		forceNext() {
-			if (imageList.isPopulated) {
-				this.moveNext();
-				this.startNewDuration();
-			}
-		},
-
-		forcePrevious() {
-			if (imageList.isPopulated) {
-				this.movePrevious();
-				this.startNewDuration();
-			}
-		},
-
-		moveNext() {
-			this.moveCurrentNumberBy(1);
-		},
-
-		movePrevious() {
-			this.moveCurrentNumberBy(-1);
-		},
-
-		moveCurrentNumberBy(increment) {
-			this.currentNumber = this.currentNumber + increment;
-
-			const max = this.reorderedIndexes.length - 1;
-			if (this.currentNumber > max) this.currentNumber = 0;
-			if (this.currentNumber < 0) this.currentNumber = max;
-
-			this.onCurrentNumberChanged?.();
-		},
-
 		// SHUFFLE
 		// A persistent array of shuffled indexes is kept so
 		// the user can freely go backwards and forwards in a shuffled image list.
 		reorderedIndexes: [],
+		onCurrentNumberChanged: null,
+		currentNumber: 0,
+		
+		get length() {
+			return this.reorderedIndexes.length;
+		},
+		
+		get maxNumber() {
+			return this.length - 1;
+		},
+		
+		get isPopulated() {
+			return this.length > 0;
+		},
 
-		get currentImageIndex() {
+		get currentIndex() {
 			return this.reorderedIndexes[this.currentNumber];
 		},
 
@@ -598,6 +579,38 @@
 				this.reorderedIndexes[swapPartner] = swapBuffer;
 			}
 		},
+		
+		forceNext() {
+			if (this.isPopulated) {
+				this.moveNext();
+				this.startNewDuration();
+			}
+		},
+
+		forcePrevious() {
+			if (this.isPopulated) {
+				this.movePrevious();
+				this.startNewDuration();
+			}
+		},
+
+		moveNext() {
+			this.moveCurrentNumberBy(1);
+		},
+
+		movePrevious() {
+			this.moveCurrentNumberBy(-1);
+		},
+
+		moveCurrentNumberBy(increment) {
+			this.currentNumber = this.currentNumber + increment;
+
+			const max = this.maxNumber;
+			if (this.currentNumber > max) this.currentNumber = 0;
+			if (this.currentNumber < 0) this.currentNumber = max;
+
+			this.onCurrentNumberChanged?.();
+		}
 	};
 
 	// *		*		*		*		*		 IMAGE HOLDER OBJECT 		*		*		*		*		*
