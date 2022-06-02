@@ -242,7 +242,7 @@
 
 	<script type="text/javascript">
 	"use strict";
-	const VERSION = "2022.0602c"
+	const VERSION = "2022.0602e"
 
 	const THE_IMAGE_ID = "image";
 	const THE_IMAGECAPTION_ID = "imagecaption";
@@ -645,12 +645,13 @@
 		},
 
 		loadNewFileArray() {
-			const theFileArray = getElement("fileinput").files; // take the files array from the <input> tag
-
+			const fileArray = getElement("fileinput").files; // take the files array from the <input> tag
+			const fileCount = fileArray.length;
+			
 			// Copy the filenames from the file array
-			this.fileNameArray = new Array(theFileArray.length);
-			for (let i = 0; i < theFileArray.length; i++) {
-				this.fileNameArray[i] = theFileArray[i].name;
+			this.fileNameArray = new Array(fileCount);
+			for (let i = 0; i < fileCount; i++) {
+				this.fileNameArray[i] = fileArray[i].name;
 			}
 
 			circulator.startNewOrder();
