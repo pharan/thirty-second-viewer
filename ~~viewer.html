@@ -241,7 +241,8 @@
 	</style>
 
 	<script type="text/javascript">
-	const VERSION = "2022.0601h"
+	"use strict";
+	const VERSION = "2022.0602b"
 
 	const THE_IMAGE_ID = "image";
 	const THE_IMAGECAPTION_ID = "imagecaption";
@@ -277,6 +278,8 @@
 	const KEY_PLAYPAUSE = "p";
 
 	const REST_OF_TITLE = "-Second Viewer";
+	
+	const getElement = (elementId) => document.getElementById(elementId);
 
 	const VIEWER_FILENAME = function() {
 		let url = document.location.href;
@@ -296,7 +299,7 @@
 
 	// *		*		*		*		*		 VIEWER INTERFACE OBJECT		*		*		*		*		*
 	const viewerInterface = {
-		getUserSecondsField() { return document.getElementById(USER_CLICKABLE_NUMBER_ID); },
+		getUserSecondsField() { return getElement(USER_CLICKABLE_NUMBER_ID); },
 		getUserSecondsFieldValue() { return this.getUserSecondsField().value; },
 		getValidUserSeconds() { return parseInt(this.getUserSecondsFieldValue(), 10); },
 
@@ -321,7 +324,7 @@
 			circulator.onPlayPauseChanged = () => viewerInterface.handlePlayPauseToggle();
 
 			// Bind click events
-			const bindClickAction = (elementId, action) => document.getElementById(elementId).addEventListener("click", action);
+			const bindClickAction = (elementId, action) => getElement(elementId).addEventListener("click", action);
 			bindClickAction(RIGHTARROW_ID, () => circulator.forceNext());
 			bindClickAction(LEFTARROW_ID, () => circulator.forcePrevious());
 			bindClickAction(RESTARTBUTTON_ID, () => circulator.restartTimer());
@@ -329,7 +332,7 @@
 			bindClickAction(TIMELEFT_ID, () => viewerInterface.togglePlayPause());
 
 			// Bind event for when user changes files
-			const fileInputElement = document.getElementById("fileinput");
+			const fileInputElement = getElement("fileinput");
 			fileInputElement.setAttribute("accept", "image/*");		// Only accept image files (as supported by the browser)
 			fileInputElement.addEventListener("change", () => {
 				imageList.loadNewFileArray();
@@ -387,24 +390,27 @@
 		},
 
 		localizeText() {
-			if (Math.floor((Math.random() * 50)) == 20) REST_OF_TITLE = "-Second Hamburger";	//proc hamburger
+			const rollChanceOutOf = (outOf) => Math.floor((Math.random() * outOf)) == 1;
+			if (rollChanceOutOf(50)) REST_OF_TITLE = "-Second Hamburger";	//proc hamburger
 
 			const secondsSetting = this.getUserSecondsField().value;
 			this.changeAllMentionOfSeconds(secondsSetting);
 			
-			document.getElementById(LEFTARROW_ID).innerHTML = LEFTARROW_UNICODE;
-			document.getElementById(RIGHTARROW_ID).innerHTML = RIGHTARROW_UNICODE;
-			document.getElementById(RESTARTBUTTON_ID).innerHTML = RESTARTBUTTON_UNICODE;
+			getElement(LEFTARROW_ID).innerHTML = LEFTARROW_UNICODE;
+			getElement(RIGHTARROW_ID).innerHTML = RIGHTARROW_UNICODE;
+			getElement(RESTARTBUTTON_ID).innerHTML = RESTARTBUTTON_UNICODE;
 
 			document.querySelectorAll("header > h1").forEach((el) => { el.innerHTML = REST_OF_TITLE; });
 			document.querySelectorAll(".viewerfilename").forEach((el) => { el.innerHTML = VIEWER_FILENAME; });
-			document.getElementById(VERSION_ID).innerHTML = "v" + VERSION;
+			getElement(VERSION_ID).innerHTML = "v" + VERSION;
 
 			const WARNING_TITLES = ["ACHTUNG!", "CAUTION!", "ATTENTION!", "WARNING!", "ADVERTENCIA!"];
-			const titlerand = Math.floor((Math.random() * WARNING_TITLES.length))
-			document.getElementById("warningtitle").innerHTML = WARNING_TITLES[titlerand];
+			const randomInt = (maxInt) => Math.floor((Math.random() * maxInt));
+			
+			const randomTitleIndex = randomInt(WARNING_TITLES.length);
+			getElement("warningtitle").innerHTML = WARNING_TITLES[randomTitleIndex];
 
-			const welcomeClassList = document.getElementById(WELCOME_ID).classList;
+			const welcomeClassList = getElement(WELCOME_ID).classList;
 			welcomeClassList.add("helpon");
 			welcomeClassList.remove("helpoff");
 		},
@@ -415,8 +421,8 @@
 		},
 
 		refreshSubHeader() {
-			document.getElementById(TGH_ID).innerHTML = "[ " + imageList.length + " images" + " : <span class='" + MENTIONS_OF_SECONDS_CLASS  + "'>" +  circulator.lastsecondsBetween + "</span> seconds each ]";
-			const welcomeClassList = document.getElementById(WELCOME_ID).classList;
+			getElement(TGH_ID).innerHTML = "[ " + imageList.length + " images" + " : <span class='" + MENTIONS_OF_SECONDS_CLASS  + "'>" +  circulator.lastsecondsBetween + "</span> seconds each ]";
+			const welcomeClassList = getElement(WELCOME_ID).classList;
 			welcomeClassList.remove("helpon");
 			welcomeClassList.add("helpoff");
 		},
@@ -429,7 +435,7 @@
 		},
 
 		updateTimeIndicator() {
-			document.getElementById(TIMELEFT_ID).innerHTML = this.toDotRepresentation(circulator.secondsLeft, circulator.lastsecondsBetween);
+			getElement(TIMELEFT_ID).innerHTML = this.toDotRepresentation(circulator.secondsLeft, circulator.lastsecondsBetween);
 		},
 
 		togglePlayPause() {
@@ -438,7 +444,7 @@
 		},
 
 		handlePlayPauseToggle() {
-			const timeLeftElement = document.getElementById(TIMELEFT_ID);
+			const timeLeftElement = getElement(TIMELEFT_ID);
 			const timeLeftClassList = timeLeftElement.classList;
 			const isPausedClass = timeLeftClassList.contains(PAUSED_CLASS);
 
@@ -450,7 +456,7 @@
 		},
 
 		playClackSound() {
-			const clackElement = document.getElementById("clacksound");
+			const clackElement = getElement("clacksound");
 			clackElement.currentTime = 0;
 			clackElement.play();
 		},
@@ -591,13 +597,13 @@
 		isImageZoomed: true,
 
 		setImage(filename) {
-			const imageElement = document.getElementById(THE_IMAGE_ID);
+			const imageElement = getElement(THE_IMAGE_ID);
 			imageElement.setAttribute("src", "" + filename);
 			this.setCaption(imageElement.getAttribute("src"));
 		},
 
 		setCaption(newCaption) {
-			document.getElementById(THE_IMAGECAPTION_ID).innerHTML = newCaption;
+			getElement(THE_IMAGECAPTION_ID).innerHTML = newCaption;
 		},
 
 		toggleImageZoom() {
@@ -606,7 +612,7 @@
 		},
 
 		recalculateMaxImageSize() {
-			const imageElement = document.getElementById(THE_IMAGE_ID);
+			const imageElement = getElement(THE_IMAGE_ID);
 
 			if (this.isImageZoomed) {
 				imageElement.style.maxHeight = "none";
@@ -639,7 +645,7 @@
 		},
 
 		loadNewFileArray() {
-			const theFileArray = document.getElementById("fileinput").files; // take the files array from the <input> tag
+			const theFileArray = getElement("fileinput").files; // take the files array from the <input> tag
 
 			// Copy the filenames from the file array
 			this.fileNameArray = new Array(theFileArray.length);
