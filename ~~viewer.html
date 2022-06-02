@@ -242,7 +242,7 @@
 
 	<script type="text/javascript">
 	"use strict";
-	const VERSION = "2022.0602e"
+	const VERSION = "2022.0602f"
 
 	const THE_IMAGE_ID = "image";
 	const THE_IMAGECAPTION_ID = "imagecaption";
@@ -319,10 +319,12 @@
 		},
 
 		initializeButtons() {
-			// Bind circulator update to interface update
+			// Inject circulator dependencies.
 			circulator.onUpdate = () => viewerInterface.updateTimeIndicator();
-			circulator.onImageChanged = () => imageHolder.setImage(viewerInterface.currentImage);
+			circulator.getUserSeconds = () => viewerInterface.getValidUserSeconds();
+			circulator.onCurrentNumberChanged = () => imageHolder.setImage(viewerInterface.currentImage);
 			circulator.onPlayPauseChanged = () => viewerInterface.handlePlayPauseToggle();
+			circulator.onTimerRestart = () => viewerInterface.playClackSound();
 
 			// Bind click events
 			const bindClickAction = (elementId, action) => getElement(elementId).addEventListener("click", action);
@@ -336,7 +338,10 @@
 			const fileInputElement = getElement("fileinput");
 			fileInputElement.setAttribute("accept", "image/*");		// Only accept image files (as supported by the browser)
 			fileInputElement.addEventListener("change", () => {
-				imageList.loadNewFileArray();
+				const fileList = getElement("fileinput").files;
+				imageList.load(fileList);
+				circulator.startNewOrder(imageList.length);
+				circulator.initializeTimer();
 				viewerInterface.initializeImage();
 				viewerInterface.refreshSubHeader();
 			});
@@ -485,8 +490,10 @@
 		MAXIMUM_SECONDS: 3600,
 		timerId: 0,
 		onUpdate: null,
-		onImageChanged: null,
+		onCurrentNumberChanged: null,
 		onPlayPauseChanged: null,
+		getUserSeconds: null,
+		onTimerRestart: null,
 
 		togglePlayPause() {
 			this.isActive = !(this.isActive);
@@ -511,14 +518,14 @@
 		},
 
 		restartTimer() {
-			this.readTextBoxTime();
+			this.refreshDurationSetting();
 			this.lastsecondsBetween = this.secondsBetween;
 			this.secondsLeft = this.secondsBetween;
-			viewerInterface.playClackSound();
+			this.onTimerRestart?.();
 		},
 
-		readTextBoxTime() {
-			this.secondsBetween	= viewerInterface.getValidUserSeconds();
+		refreshDurationSetting() {
+			this.secondsBetween = this.getUserSeconds();
 		},
 
 		startNewImageDuration() {
@@ -551,43 +558,42 @@
 		moveCurrentNumberBy(increment) {
 			this.currentNumber = this.currentNumber + increment;
 
-			const max = imageList.length - 1;
+			const max = this.reorderedIndexes.length - 1;
 			if (this.currentNumber > max) this.currentNumber = 0;
 			if (this.currentNumber < 0) this.currentNumber = max;
 
-			this.onImageChanged?.();
+			this.onCurrentNumberChanged?.();
 		},
 
 		// SHUFFLE
 		// A persistent array of shuffled indexes is kept so
 		// the user can freely go backwards and forwards in a shuffled image list.
-		imageOrder: [],
+		reorderedIndexes: [],
 
 		get currentImageIndex() {
-			return this.imageOrder[this.currentNumber];
+			return this.reorderedIndexes[this.currentNumber];
 		},
 
-		startNewOrder() {
-			this.resetImageOrder();
-			this.shuffleImageOrder();
-			this.onImageChanged?.();
+		startNewOrder(arrayLength) {
+			this.resetToDefaultOrder(arrayLength);
+			this.generateShuffledOrder();
+			this.onCurrentNumberChanged?.();
 		},
 
-		resetImageOrder() {
-			const n = imageList.length;
-			this.imageOrder = new Array(n);
-			for (let i = 0; i < n; i++) {
-				this.imageOrder[i] = i;
+		resetToDefaultOrder(arrayLength) {
+			this.reorderedIndexes = new Array(arrayLength);
+			for (let i = 0; i < arrayLength; i++) {
+				this.reorderedIndexes[i] = i;
 			}
 		},
 
-		shuffleImageOrder() {
-			const iterations = Math.floor(this.imageOrder.length * 2 / 3);
+		generateShuffledOrder() {
+			const iterations = Math.floor(this.reorderedIndexes.length * 2 / 3);
 			for (let i = 0; i < iterations; i++) {
-				let swapBuffer = this.imageOrder[i];
-				let swapPartner = Math.floor((Math.random() * this.imageOrder.length));
-				this.imageOrder[i] = this.imageOrder[swapPartner];
-				this.imageOrder[swapPartner] = swapBuffer;
+				let swapBuffer = this.reorderedIndexes[i];
+				let swapPartner = Math.floor((Math.random() * this.reorderedIndexes.length));
+				this.reorderedIndexes[i] = this.reorderedIndexes[swapPartner];
+				this.reorderedIndexes[swapPartner] = swapBuffer;
 			}
 		},
 	};
@@ -630,10 +636,10 @@
 
 	// *		*		*		*		*		 IMAGE LIST OBJECT 			*		*		*		*		*
 	const imageList = {
-		fileNameArray: [],
+		fileNames: [],
 
 		get length() {
-			return this.fileNameArray.length
+			return this.fileNames.length
 		},
 
 		get isPopulated() {
@@ -641,21 +647,17 @@
 		},
 
 		getImageByIndex(index) {
-			return this.fileNameArray[index];
+			return this.fileNames[index];
 		},
 
-		loadNewFileArray() {
-			const fileArray = getElement("fileinput").files; // take the files array from the <input> tag
-			const fileCount = fileArray.length;
+		load(fileList) {
+			const fileCount = fileList.length;
 			
-			// Copy the filenames from the file array
-			this.fileNameArray = new Array(fileCount);
+			// Copy the filenames from the list
+			this.fileNames = new Array(fileCount);
 			for (let i = 0; i < fileCount; i++) {
-				this.fileNameArray[i] = fileArray[i].name;
+				this.fileNames[i] = fileList[i].name;
 			}
-
-			circulator.startNewOrder();
-			circulator.initializeTimer();
 		}
 	};
 	</script>
