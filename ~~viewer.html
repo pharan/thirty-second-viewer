@@ -434,10 +434,6 @@
 			viewerInterface.playClackSound();
 		},
 
-		updateTimeIndicator() {
-			getElement(TIMELEFT_ID).innerHTML = this.toDotRepresentation(timer.secondsLeft, timer.lastsecondsBetween);
-		},
-
 		togglePlayPause() {
 			timer.togglePlayPause();
 			viewerInterface.playClackSound();
@@ -479,6 +475,10 @@
 			const clackElement = getElement("clacksound");
 			clackElement.currentTime = 0;
 			clackElement.play();
+		},
+		
+		updateTimeIndicator() {
+			getElement(TIMELEFT_ID).innerHTML = this.toDotRepresentation(timer.secondsLeft, timer.lastsecondsBetween);
 		},
 
 		toDotRepresentation(timeinSeconds, maxtime) {
