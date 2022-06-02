@@ -321,7 +321,7 @@
 		initializeButtons() {
 			// Inject circulator dependencies.
 			circulator.onUpdate = () => viewerInterface.updateTimeIndicator();
-			circulator.getUserSeconds = () => viewerInterface.getValidUserSeconds();
+			circulator.getDurationSeconds = () => viewerInterface.getValidUserSeconds();
 			circulator.onCurrentNumberChanged = () => imageHolder.setImage(viewerInterface.currentImage);
 			circulator.onPlayPauseChanged = () => viewerInterface.handlePlayPauseToggle();
 			circulator.onTimerRestart = () => viewerInterface.playClackSound();
@@ -489,10 +489,10 @@
 		MINIMUM_SECONDS: 5,
 		MAXIMUM_SECONDS: 3600,
 		timerId: 0,
+		getDurationSeconds: null,
 		onUpdate: null,
 		onCurrentNumberChanged: null,
 		onPlayPauseChanged: null,
-		getUserSeconds: null,
 		onTimerRestart: null,
 
 		togglePlayPause() {
@@ -525,7 +525,7 @@
 		},
 
 		refreshDurationSetting() {
-			this.secondsBetween = this.getUserSeconds();
+			this.secondsBetween = this.getDurationSeconds();
 		},
 
 		startNewImageDuration() {
