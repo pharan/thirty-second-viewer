@@ -242,7 +242,7 @@
 
 	<script type="text/javascript">
 	"use strict";
-	const VERSION = "2022.0602b"
+	const VERSION = "2022.0602c"
 
 	const THE_IMAGE_ID = "image";
 	const THE_IMAGECAPTION_ID = "imagecaption";
@@ -279,7 +279,8 @@
 
 	const REST_OF_TITLE = "-Second Viewer";
 	
-	const getElement = (elementId) => document.getElementById(elementId);
+	const getElement = (id) => document.getElementById(id);
+	const querySelectAll = (selectors) => document.querySelectorAll(selectors);
 
 	const VIEWER_FILENAME = function() {
 		let url = document.location.href;
@@ -391,7 +392,7 @@
 
 		localizeText() {
 			const rollChanceOutOf = (outOf) => Math.floor((Math.random() * outOf)) == 1;
-			if (rollChanceOutOf(50)) REST_OF_TITLE = "-Second Hamburger";	//proc hamburger
+			if (rollChanceOutOf(50)) REST_OF_TITLE = "-Second Hamburger"; //proc hamburger
 
 			const secondsSetting = this.getUserSecondsField().value;
 			this.changeAllMentionOfSeconds(secondsSetting);
@@ -400,13 +401,12 @@
 			getElement(RIGHTARROW_ID).innerHTML = RIGHTARROW_UNICODE;
 			getElement(RESTARTBUTTON_ID).innerHTML = RESTARTBUTTON_UNICODE;
 
-			document.querySelectorAll("header > h1").forEach((el) => { el.innerHTML = REST_OF_TITLE; });
-			document.querySelectorAll(".viewerfilename").forEach((el) => { el.innerHTML = VIEWER_FILENAME; });
+			querySelectAll("header > h1").forEach((el) => { el.innerHTML = REST_OF_TITLE; });
+			querySelectAll(".viewerfilename").forEach((el) => { el.innerHTML = VIEWER_FILENAME; });
 			getElement(VERSION_ID).innerHTML = "v" + VERSION;
 
 			const WARNING_TITLES = ["ACHTUNG!", "CAUTION!", "ATTENTION!", "WARNING!", "ADVERTENCIA!"];
 			const randomInt = (maxInt) => Math.floor((Math.random() * maxInt));
-			
 			const randomTitleIndex = randomInt(WARNING_TITLES.length);
 			getElement("warningtitle").innerHTML = WARNING_TITLES[randomTitleIndex];
 
@@ -430,7 +430,7 @@
 		changeAllMentionOfSeconds(numOfSeconds) {
 			this.getUserSecondsField().value = numOfSeconds;
 			document.querySelector("title").innerHTML = numOfSeconds + REST_OF_TITLE;
-			document.querySelectorAll(MENTIONS_OF_SECONDS_SELECTOR).forEach((el) => { el.innerHTML = numOfSeconds; });
+			querySelectAll(MENTIONS_OF_SECONDS_SELECTOR).forEach((el) => { el.innerHTML = numOfSeconds; });
 			viewerInterface.playClackSound();
 		},
 
@@ -558,9 +558,9 @@
 			this.onImageChanged?.();
 		},
 
-		// SHUFFLE	(uses an array of ints from 0 to the last index of the data array)
-		// Instead of shuffling the filename array, or just randomly picking from it.
-		// An persistent array of shuffled indexes is kept so the user can freely go back to a previous image.
+		// SHUFFLE
+		// A persistent array of shuffled indexes is kept so
+		// the user can freely go backwards and forwards in a shuffled image list.
 		imageOrder: [],
 
 		get currentImageIndex() {
