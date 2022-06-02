@@ -242,7 +242,7 @@
 
 	<script type="text/javascript">
 	"use strict";
-	const VERSION = "2022.0602f"
+	const VERSION = "2022.0602g"
 
 	const THE_IMAGE_ID = "image";
 	const THE_IMAGECAPTION_ID = "imagecaption";
@@ -362,7 +362,7 @@
 					viewerInterface.updateMentionsOfSeconds();
 
 					if (imageList.isPopulated) {					// only trigger new duration if the list is populated
-						circulator.startNewImageDuration();
+						circulator.startNewDuration();
 					}
 				}
 			});
@@ -482,7 +482,6 @@
 	// *		*		*		*		*		 CIRCULATOR OBJECT 			*		*		*		*		*
 	const circulator = {
 		isActive: true,
-		currentNumber: 0,
 		secondsLeft: 30,
 		lastsecondsBetween: 30,
 		secondsBetween: 30,
@@ -494,6 +493,9 @@
 		onCurrentNumberChanged: null,
 		onPlayPauseChanged: null,
 		onTimerRestart: null,
+		onTimerElapsed: () => { circulator.moveNext(); },
+		
+		currentNumber: 0,
 
 		togglePlayPause() {
 			this.isActive = !(this.isActive);
@@ -505,7 +507,7 @@
 				this.secondsLeft -= TIMER_UPDATE_INTERVAL_SECONDS;
 				if (this.secondsLeft < 0) {
 					this.restartTimer();
-					this.moveNext();
+					this.onTimerElapsed?.();
 				}
 				this.onUpdate?.();
 			}
@@ -528,7 +530,7 @@
 			this.secondsBetween = this.getDurationSeconds();
 		},
 
-		startNewImageDuration() {
+		startNewDuration() {
 			this.restartTimer();
 			this.onUpdate?.();
 		},
@@ -536,14 +538,14 @@
 		forceNext() {
 			if (imageList.isPopulated) {
 				this.moveNext();
-				this.startNewImageDuration();
+				this.startNewDuration();
 			}
 		},
 
 		forcePrevious() {
 			if (imageList.isPopulated) {
 				this.movePrevious();
-				this.startNewImageDuration();
+				this.startNewDuration();
 			}
 		},
 
