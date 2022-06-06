@@ -242,7 +242,7 @@
 
 	<script type="text/javascript">
 	"use strict";
-	const VERSION = "2022.0606c";
+	const VERSION = "2022.0606d";
 
 	// event.key
 	const KeyBindings = {
@@ -273,7 +273,7 @@
 	const Selectors = {
 		PausedClass: "paused",
 		MentionsOfSecondsClass: "numsec",
-		get MentionsOfSeconds() { return "." + Selectors.MentionsOfSecondsClass; },
+		get MentionsOfSeconds() { return `.${Selectors.MentionsOfSecondsClass}`; },
 	};
 	
 	const Symbol = {
@@ -418,7 +418,7 @@
 
 			querySelectAll("header > h1").forEach((el) => { el.innerHTML = REST_OF_TITLE; });
 			querySelectAll(".viewerfilename").forEach((el) => { el.innerHTML = VIEWER_FILENAME; });
-			getElement(Ids.VersionLabel).innerHTML = "v" + VERSION;
+			getElement(Ids.VersionLabel).innerHTML = `v${VERSION}`;
 
 			const WARNING_TITLES = ["ACHTUNG!", "CAUTION!", "ATTENTION!", "WARNING!", "ADVERTENCIA!"];
 			const randomInt = (maxInt) => Math.floor((Math.random() * maxInt));
@@ -436,7 +436,7 @@
 		},
 
 		refreshSubHeader() {
-			getElement(Ids.Tgh).innerHTML = "[ " + imageList.length + " images" + " : <span class='" + Selectors.MentionsOfSecondsClass  + "'>" +  timer.lastsecondsBetween + "</span> seconds each ]";
+			getElement(Ids.Tgh).innerHTML = `[ ${imageList.length} images : <span class='${Selectors.MentionsOfSecondsClass}'> ${timer.lastsecondsBetween}</span> seconds each ]`;
 			const welcomeClassList = getElement(Ids.WelcomeLabel).classList;
 			welcomeClassList.remove("helpon");
 			welcomeClassList.add("helpoff");
@@ -444,7 +444,7 @@
 
 		changeAllMentionOfSeconds(numOfSeconds) {
 			this.getUserSecondsField().value = numOfSeconds;
-			document.querySelector("title").innerHTML = numOfSeconds + REST_OF_TITLE;
+			document.querySelector("title").innerHTML = `${numOfSeconds}${REST_OF_TITLE}`;
 			querySelectAll(Selectors.MentionsOfSeconds).forEach((el) => { el.innerHTML = numOfSeconds; });
 			viewerInterface.playClackSound();
 		},
@@ -622,7 +622,7 @@
 
 		setImage(filename) {
 			const imageElement = getElement(Ids.CurrentImage);
-			imageElement.setAttribute("src", "" + filename);
+			imageElement.setAttribute("src", `${filename}`);
 			this.setCaption(imageElement.getAttribute("src"));
 		},
 
@@ -644,10 +644,10 @@
 			}
 			else if (!this.isImageZoomed) {
 				const targetHeight = window.innerHeight - 100;
-				imageElement.style.maxHeight = targetHeight + "px";
+				imageElement.style.maxHeight = `${targetHeight}px`;
 
 				const targetWidth = window.innerWidth - 50;
-				imageElement.style.maxWidth = targetWidth + "px";
+				imageElement.style.maxWidth = `${targetWidth}px`;
 			}
 		},
 	};
