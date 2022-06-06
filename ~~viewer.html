@@ -264,7 +264,7 @@
 
 	<script type="text/javascript">
 	"use strict";
-	const VERSION = "2022.0607g";
+	const VERSION = "2022.0607h";
 
 	// event.key
 	const KeyBindings = {
@@ -385,7 +385,7 @@
 				const fileList = getElement("fileinput").files;
 				imageList.load(fileList);
 				circulator.startNewOrder(imageList.length);
-				timer.initialize();
+				timer.initialize(TimerSettings.UpdateIntervalSeconds);
 				viewerInterface.initializeImage();
 				viewerInterface.refreshSubHeader();
 			});
@@ -539,6 +539,7 @@
 		secondsLeft: 30,
 		lastsecondsBetween: 30,
 		secondsBetween: 30,
+		updateIntervalSeconds: 100,
 
 		intervalId: 0,
 		getDurationSeconds: null,
@@ -547,10 +548,11 @@
 		onRestart: null,
 		onElapsed: null,
 
-		initialize() {
+		initialize(updateIntervalSeconds) {
 			this.restart();
+			this.updateIntervalSeconds = updateIntervalSeconds;
 			clearInterval(this.intervalId); //stop the previous counter (if it exists?)
-			this.intervalId = setInterval(() => timer.updateTime(), TimerSettings.UpdateIntervalSeconds * 1000);
+			this.intervalId = setInterval(() => timer.updateTime(), this.updateIntervalSeconds * 1000);
 		},
 
 		togglePlayPause() {
@@ -560,7 +562,7 @@
 
 		updateTime() {
 			if (this.isActive) {
-				this.secondsLeft -= TimerSettings.UpdateIntervalSeconds;
+				this.secondsLeft -= this.updateIntervalSeconds;
 				if (this.secondsLeft < 0) {
 					this.onElapsed?.();
 				}
