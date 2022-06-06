@@ -242,7 +242,7 @@
 
 	<script type="text/javascript">
 	"use strict";
-	const VERSION = "2022.0606a"
+	const VERSION = "2022.0606b"
 
 	// event.key
 	const KeyBindings = {
@@ -271,18 +271,18 @@
 	};
 	
 	const Selectors = {
-		PausedClass: ""
-	}
+		PausedClass: "paused",
+		MentionsOfSecondsClass: "numsec",
+		get MentionsOfSeconds() { return "." + Selectors.MentionsOfSecondsClass; },
+	};
 	
-	const LEFTARROW_UNICODE = "&lsaquo;";
-	const RIGHTARROW_UNICODE = "&rsaquo;";
-	const RESTARTBUTTON_UNICODE = "&#8634;"
-	const PLAYBUTTON_UNICODE = "&#9654;";
-	const PAUSEBUTTON_UNICODE = "&#9208;";
-
-	const MENTIONS_OF_SECONDS_CLASS = "numsec";
-	const PAUSED_CLASS = "paused";
-	const MENTIONS_OF_SECONDS_SELECTOR = "." + MENTIONS_OF_SECONDS_CLASS;
+	const Symbol = {
+		LeftArrow: "&lsaquo;",
+		RightArrow: "&rsaquo;",
+		RestartButton: "&#8634;",
+		PlayButton: "&#9654;",
+		PauseButton: "&#9208;",
+	};
 
 	const TIMER_UPDATE_INTERVAL_SECONDS = 0.25;
 	const DEFAULT_SECONDS = 30;
@@ -407,9 +407,9 @@
 			const secondsSetting = this.getUserSecondsField().value;
 			this.changeAllMentionOfSeconds(secondsSetting);
 
-			getElement(Ids.LeftArrowButton).innerHTML = LEFTARROW_UNICODE;
-			getElement(Ids.RightArrowButton).innerHTML = RIGHTARROW_UNICODE;
-			getElement(Ids.RestartButton).innerHTML = RESTARTBUTTON_UNICODE;
+			getElement(Ids.LeftArrowButton).innerHTML = Symbol.LeftArrow;
+			getElement(Ids.RightArrowButton).innerHTML = Symbol.RightArrow;
+			getElement(Ids.RestartButton).innerHTML = Symbol.RestartButton;
 
 			querySelectAll("header > h1").forEach((el) => { el.innerHTML = REST_OF_TITLE; });
 			querySelectAll(".viewerfilename").forEach((el) => { el.innerHTML = VIEWER_FILENAME; });
@@ -431,7 +431,7 @@
 		},
 
 		refreshSubHeader() {
-			getElement(Ids.Tgh).innerHTML = "[ " + imageList.length + " images" + " : <span class='" + MENTIONS_OF_SECONDS_CLASS  + "'>" +  timer.lastsecondsBetween + "</span> seconds each ]";
+			getElement(Ids.Tgh).innerHTML = "[ " + imageList.length + " images" + " : <span class='" + Selectors.MentionsOfSecondsClass  + "'>" +  timer.lastsecondsBetween + "</span> seconds each ]";
 			const welcomeClassList = getElement(Ids.WelcomeLabel).classList;
 			welcomeClassList.remove("helpon");
 			welcomeClassList.add("helpoff");
@@ -440,7 +440,7 @@
 		changeAllMentionOfSeconds(numOfSeconds) {
 			this.getUserSecondsField().value = numOfSeconds;
 			document.querySelector("title").innerHTML = numOfSeconds + REST_OF_TITLE;
-			querySelectAll(MENTIONS_OF_SECONDS_SELECTOR).forEach((el) => { el.innerHTML = numOfSeconds; });
+			querySelectAll(Selectors.MentionsOfSeconds).forEach((el) => { el.innerHTML = numOfSeconds; });
 			viewerInterface.playClackSound();
 		},
 
@@ -472,12 +472,12 @@
 		handlePlayPauseToggle() {
 			const timeLeftElement = getElement(Ids.TimeLeftBox);
 			const timeLeftClassList = timeLeftElement.classList;
-			const isPausedClass = timeLeftClassList.contains(PAUSED_CLASS);
+			const isPausedClass = timeLeftClassList.contains(Selectors.PausedClass);
 
 			if (timer.isActive) {
-				if (isPausedClass) timeLeftClassList.remove(PAUSED_CLASS);
+				if (isPausedClass) timeLeftClassList.remove(Selectors.PausedClass);
 			} else {
-				if (!isPausedClass) timeLeftClassList.add(PAUSED_CLASS);
+				if (!isPausedClass) timeLeftClassList.add(Selectors.PausedClass);
 			}
 		},
 
