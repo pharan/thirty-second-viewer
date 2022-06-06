@@ -3,13 +3,38 @@
 <head>
 	<meta charset="utf-8" />
 	<title>30-Second Viewer</title>
-	<meta name="description" content="An time interval image viewer, for timed drawing study and practice." />
+	<meta name="description" content="A time-interval image viewer, for timed drawing study and practice." />
 	<meta name="author" content="Pharan">
 
 	<style type="text/css">
+		:root {
+			--border: solid 1px;
+			
+			--selection-bg: #bcc;
+			
+			--paused-foreground: #d65353;
+			--paused-background: #c547470c;
+			--paused-background-hover: #fc848428;
+			
+			--imagecaption-foreground: #ccc;
+			--imagecaption-foreground-hover: #bbb;
+			--imagecaption-fontsize: 14px;
+			
+			--color-readable: #777;
+			--color-faintb: #bbb;
+			--color-faintc: #ccc;
+			
+			--bg-button-hover: #fff4;
+			
+			--transition: all .3s cubic-bezier(.5, .01, .1, 1.00);
+			
+			--fonts: "Inter", "Inter UI", "San Francisco", "Segue UI", "Open Sans", "Helvetica", "Arial", sans-serif;
+			--bg-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAALVBMVEXi4uLj4+Pk5OTl5eXm5ubn5+fo6Ojp6enq6urr6+vs7Ozt7e3u7u7v7+/w8PDpFgWzAAAEBElEQVR4Xg3Rz3LTRhgA8D32RUKGaykOuROwOXUg0kYh7XRK5bUCPTTx7refnBNEWq3CiXq1+ynuhSn+A0xPDU6gVwgGXqO3PkR5g9/Mj7mtMAOUp2c3Dq+G9N21MR0kqtwvOQN46rIgsCG4EZSP7fV0f+nwd2AcZVRvd6nqX/wGs93PXu64E++jmiXN7vGRAxPZ2CHQl3TZKW8fQs8zGmbt7uXAzXYFEWnTMT738WLHMv6ATM9wqUuw/K/jK9XMznqUOWJOEgyaputPoqAUgMGiNU4PGzYqyXPZDT4pQOo7cge225cIB5xdmd4/hO01t/nni6shL0zcohGDaw1ntwrDoTDrGvQq5Z8/wMBUEsWjFyw8dBZOfNcnvkIZNMm8KvS+uGQRHJUdBN96qE7GWzx+Wi0eqOEhspsmcKUwd81TMZ33FsBN4vA7CazBoa0scEAvaHV16ZuFkIK6hvlvHNBoHiHJd6NpBaHRz28DBcUMZmZJUnq9U+rHGZi+1uZTn4glxzjjZSRRxutnu6PUw/HkLoxUyyrLp4kIVZMYvkjsBZDsXQg3KJkneonwJk9bb0jogq8S6zM3NOzexYt4P82/bLzvVA7rbhPb1b3LGixT8pfBqJxQXW04g8MENNo/Hu9YyYxJiz1X9jHgmd8bYxPWfSoEBjbO6nQeUerrMEbeBnPjkD//1VeK1f4hScztT8Xomb25riE7G5wqPPzEJqqK5QISOwX/9R8FIlDFJTC58dWOHyE8lLVptSlq8Dlxv8GO094b7vvBAweAyFFK1Hl/QoZtEYhlJiexBJy5D26iIcKDV+BYpISw6X9r5pbLZcxX7SSN3VrTZAwaXhVm7wEJrQC5T7wnFzzmDBc+hJZ/1P5o2fYJvBB0aTPos5osB/AVfz3qqwBlkSlb7EQomSoduZEIRXQkpa5QRH6geLpvGR7qlVJJ7odJ69qRQlPXoKBBtlKPTCGxl56Gyhv545yav3vGNLvsYjHedCNl4gm5DcO1T6Li/iw6Fay8XSZJdawyudD9WSaJlIizxS3ODmI37KGDtshK3Grw+4Sc3qu4YFbN74lgjrxtUMfwL38EAYhrz1q0S5htFhJM4otBTdKMSklrnlW5z1/KbbX/1g6N0jjsv1KhlvwTExdS4RBOBf+5oaNcuiUIs9yaeAbjQBG353I2/OG8H+Zmpnmgb/8pGYlyoTbPefhgNoG8WMxUYueNj9jGET3bVbDekENZbRO/fKIjByZjSV7Orlde+lEUoCOCRQNStHPOLD9+6yGbVttXrABEaWKz129Tz9I7BZ6DjitAPGjFcogxUh/uEuMrnphBXEOR5gcIr4iKSYPdaZ9pKVwHNNJSVIVpTsB7imT0uvgf5PFlKRRtYrEAAAAASUVORK5CYII=);
+		}
+		
 		body {
-			font-family: "Inter", "Inter UI", "San Francisco", "Segue UI", "Open Sans", "Helvetica", "Arial", sans-serif;
-			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAALVBMVEXi4uLj4+Pk5OTl5eXm5ubn5+fo6Ojp6enq6urr6+vs7Ozt7e3u7u7v7+/w8PDpFgWzAAAEBElEQVR4Xg3Rz3LTRhgA8D32RUKGaykOuROwOXUg0kYh7XRK5bUCPTTx7refnBNEWq3CiXq1+ynuhSn+A0xPDU6gVwgGXqO3PkR5g9/Mj7mtMAOUp2c3Dq+G9N21MR0kqtwvOQN46rIgsCG4EZSP7fV0f+nwd2AcZVRvd6nqX/wGs93PXu64E++jmiXN7vGRAxPZ2CHQl3TZKW8fQs8zGmbt7uXAzXYFEWnTMT738WLHMv6ATM9wqUuw/K/jK9XMznqUOWJOEgyaputPoqAUgMGiNU4PGzYqyXPZDT4pQOo7cge225cIB5xdmd4/hO01t/nni6shL0zcohGDaw1ntwrDoTDrGvQq5Z8/wMBUEsWjFyw8dBZOfNcnvkIZNMm8KvS+uGQRHJUdBN96qE7GWzx+Wi0eqOEhspsmcKUwd81TMZ33FsBN4vA7CazBoa0scEAvaHV16ZuFkIK6hvlvHNBoHiHJd6NpBaHRz28DBcUMZmZJUnq9U+rHGZi+1uZTn4glxzjjZSRRxutnu6PUw/HkLoxUyyrLp4kIVZMYvkjsBZDsXQg3KJkneonwJk9bb0jogq8S6zM3NOzexYt4P82/bLzvVA7rbhPb1b3LGixT8pfBqJxQXW04g8MENNo/Hu9YyYxJiz1X9jHgmd8bYxPWfSoEBjbO6nQeUerrMEbeBnPjkD//1VeK1f4hScztT8Xomb25riE7G5wqPPzEJqqK5QISOwX/9R8FIlDFJTC58dWOHyE8lLVptSlq8Dlxv8GO094b7vvBAweAyFFK1Hl/QoZtEYhlJiexBJy5D26iIcKDV+BYpISw6X9r5pbLZcxX7SSN3VrTZAwaXhVm7wEJrQC5T7wnFzzmDBc+hJZ/1P5o2fYJvBB0aTPos5osB/AVfz3qqwBlkSlb7EQomSoduZEIRXQkpa5QRH6geLpvGR7qlVJJ7odJ69qRQlPXoKBBtlKPTCGxl56Gyhv545yav3vGNLvsYjHedCNl4gm5DcO1T6Li/iw6Fay8XSZJdawyudD9WSaJlIizxS3ODmI37KGDtshK3Grw+4Sc3qu4YFbN74lgjrxtUMfwL38EAYhrz1q0S5htFhJM4otBTdKMSklrnlW5z1/KbbX/1g6N0jjsv1KhlvwTExdS4RBOBf+5oaNcuiUIs9yaeAbjQBG353I2/OG8H+Zmpnmgb/8pGYlyoTbPefhgNoG8WMxUYueNj9jGET3bVbDekENZbRO/fKIjByZjSV7Orlde+lEUoCOCRQNStHPOLD9+6yGbVttXrABEaWKz129Tz9I7BZ6DjitAPGjFcogxUh/uEuMrnphBXEOR5gcIr4iKSYPdaZ9pKVwHNNJSVIVpTsB7imT0uvgf5PFlKRRtYrEAAAAASUVORK5CYII=);
+			font-family: var(--fonts);
+			background-image: var(--bg-image);
 		}
 
 		/* transitions */
@@ -20,10 +45,10 @@
 		#arrowholder,
 		header
 		{
-			-moz-transition:		all .3s cubic-bezier(.5, .01, .1, 1.00);
-			-webkit-transition:		all .3s cubic-bezier(.5, .01, .1, 1.00);
-			-o-transition:			all .3s cubic-bezier(.5, .01, .1, 1.00);
-			transition:				all .3s cubic-bezier(.5, .01, .1, 1.00);
+			-moz-transition: var(--transition);
+			-webkit-transition: var(--transition);
+			-o-transition: var(--transition);
+			transition: var(--transition);
 		}
 
 		/* button shadows */
@@ -31,7 +56,7 @@
 		#leftarrow,
 		#rightarrow
 		{
-			text-shadow: 	0px -1px 0px #bbb;
+			text-shadow: 	0px -1px 0px var(--color-faintb);
 		}
 
 		/* unselectables */
@@ -48,21 +73,23 @@
 
 		/*	*	*	HEADER	*	*	*/
 		#usersecondsbox, header h1 {
-			font-family: 	"Inter", "Inter UI", "San Francisco", "Segue UI", "Segoe UI Light", "Museo Sans 500", "Gotham Book", "Open Sans", "Trebuchet", "Helvetica", "Arial", sans-serif;
+			font-family: 	var(--fonts);
 			font-size:		30px;
 			font-weight: 	normal;
-			color:			#777;
+			color:			var(--color-readable);
 		}
 		#usersecondsbox {
-			text-align:				right;
-			border:					1px solid transparent;
-			background-color:		transparent;
+			border: var(--border) transparent;
+			text-align:			right;
+			background-color:	transparent;
 		}
-		#usersecondsbox::selection {			background-color:		#bcc;		}
-		#usersecondsbox::-moz-selection {		background-color:		#bcc;		}
+		#usersecondsbox::-moz-selection,
+		#usersecondsbox::selection {
+			background-color: var(--selection-bg)
+		}
 		#usersecondsbox:focus {
-			border:					1px solid #ccc;
-			background-color:		#fafafa;
+			border: var(--border) var(--color-faintc);
+			background-color:	#fafafa;
 		}
 		header h1 {
 			display:			inline;
@@ -76,7 +103,7 @@
 			bottom: 			-15px;
 			left: 				20px;
 			background-color: 	rgba(255,255,255,0.3);
-			border: 			#ccc solid 1px;
+			border: 			var(--border) var(--color-faintc);
 			padding:			20px 20px;
 			opacity:			.8;
 		}
@@ -87,10 +114,10 @@
 			bottom: 			-8px;
 		}
 		header:hover #usersecondsbox {
-			border:					1px solid #ddd;
+			border: var(--border) #ddd;
 		}
 		header:hover #usersecondsbox:hover {
-			border:					1px solid #bbb;
+			border: var(--border) var(--color-faintb);
 		}
 		#tgh {
 			font-size:			10px;
@@ -98,7 +125,7 @@
 			margin:				0px 1em;
 		}
 		#fileinput {
-			color:				#ccc;
+			color: var(--color-faintc);
 		}
 		#overallholder {
 			position: 			fixed;
@@ -109,7 +136,7 @@
 		}
 		#version {
 			font-size: 11px;
-			color: #ccc;
+			color: var(--color-faintc);
 			position: fixed;
 			right: 15px;
 			top: 10px;
@@ -145,7 +172,7 @@
 		#restartbutton:hover,
 		#timeleft:hover
 		{
-			background-color: #fff4;
+			background-color: var(--bg-button-hover);
 		}
 		#leftarrow		{	left: 10px;		}
 		#rightarrow		{	right: 10px;	}
@@ -159,7 +186,7 @@
 			position: 			absolute;
 			font-size: 			20px;
 			top: 				15px;
-			color: 				#bbb;
+			color: 				var(--color-faintb);
 			left: 				50%;
 			margin-left: 		-84px;
 			width: 				163px;
@@ -169,11 +196,11 @@
 		}
 
 		#timeleft.paused {
-			color: #d65353;
-			background-color: #c547470c;
+			color: var(--paused-foreground);
+			background-color: var(--paused-background);
 		}
 		#timeleft.paused:hover {
-			background-color: #fc848428;
+			background-color: var(--paused-background-hover);
 		}
 
 		/*	*	*	IMAGE HOLDER	*	*	*/
@@ -185,11 +212,11 @@
 			text-align: 		center;
 		}
 		#imagecaption {
-			color:				#ccc;
-			font-size:			14px;
+			color: var(--imagecaption-foreground);
+			font-size: var(--imagecaption-fontsize);
 		}
 		#imagecaption:hover {
-			color: 				#bbb;
+			color: var(--imagecaption-foreground-hover);
 		}
 		#image {
 			position:			relative;
@@ -205,7 +232,7 @@
 		/*	*	*	WELCOME MESSAGE		*	*	*/
 		#welcome, #welcome.helpon {
 			font-size: 		12px;
-			color: 			#777;
+			color: 			var(--color-readable);
 			padding:		1.5em;
 			overflow:		hidden;
 			text-align:		justify;
@@ -221,7 +248,7 @@
 			margin-top:		8px;
 			padding-top:	3px;
 
-			border-top:		1px dotted #bbb;
+			border-top:		1px dotted var(--color-faintb);
 		}
 		#welcome.helpon p {
 			margin-top: 5px;
@@ -242,7 +269,7 @@
 
 	<script type="text/javascript">
 	"use strict";
-	const VERSION = "2022.0606d";
+	const VERSION = "2022.0607f";
 
 	// event.key
 	const KeyBindings = {
@@ -292,7 +319,7 @@
 		MaximumSeconds: 3600,
 	};
 
-	const REST_OF_TITLE = "-Second Viewer";
+	let REST_OF_TITLE = "-Second Viewer";
 
 	const getElement = (id) => document.getElementById(id);
 	const querySelectAll = (selectors) => document.querySelectorAll(selectors);
@@ -405,6 +432,13 @@
 			this.changeAllMentionOfSeconds(secondsFieldValue);
 		},
 
+		getInstructionHeader() {
+			const INSTRUCTION_TITLES = ["HOW IT WORKS", "HOW TO USE", "HOW THE THING DO", "INSTRUCTIONS", "使用方法"];
+			const randomInt = (maxInt) => Math.floor((Math.random() * maxInt));
+			const randomTitleIndex = randomInt(INSTRUCTION_TITLES.length);
+			return INSTRUCTION_TITLES[randomTitleIndex];
+		},
+		
 		localizeText() {
 			const rollChanceOutOf = (outOf) => Math.floor((Math.random() * outOf)) == 1;
 			if (rollChanceOutOf(50)) REST_OF_TITLE = "-Second Hamburger"; //proc hamburger
@@ -420,10 +454,7 @@
 			querySelectAll(".viewerfilename").forEach((el) => { el.innerHTML = VIEWER_FILENAME; });
 			getElement(Ids.VersionLabel).innerHTML = `v${VERSION}`;
 
-			const WARNING_TITLES = ["ACHTUNG!", "CAUTION!", "ATTENTION!", "WARNING!", "ADVERTENCIA!"];
-			const randomInt = (maxInt) => Math.floor((Math.random() * maxInt));
-			const randomTitleIndex = randomInt(WARNING_TITLES.length);
-			getElement("warningtitle").innerHTML = WARNING_TITLES[randomTitleIndex];
+			getElement("warningtitle").innerHTML = this.getInstructionHeader();
 
 			const welcomeClassList = getElement(Ids.WelcomeLabel).classList;
 			welcomeClassList.add("helpon");
@@ -688,7 +719,7 @@
 					that contribute effectively to the feeling, movement, action or realism of a subject.<br/>
 					You can load image files and it will pick out and display a random image from the set every <span class="numsec">30</span> seconds.</p>
 				<p><strong id="warningtitle">WARNING!</strong><br />
-					Modern browsers don't allow access to just any folder on your computer. So this tool can only work with images in the folder where it's saved.</p>
+					Modern browsers don't allow access to just any folder on your computer. So this tool only works with images in the folder where it's saved.</p>
 				<p>This is how to open a set of images:</p>
 				<ol>
 					<li>Copy this file (<span class="viewerfilename"></span>) into the folder where you have your image files.</li>
